@@ -1,0 +1,98 @@
+name: Create Dev Test and Prod Environments
+# clean up the environment for the next demo
+#  clean up environment tasks for QA and Prod 
+
+on:
+  workflow_dispatch:
+    inputs:
+    
+     env_name:
+     description: name for the environment to be created
+     required: true
+     default: [environmentname]
+     
+     client_id:
+     description: service principal client id
+     required: true
+     default: [client id]
+     
+     user_id:
+     description: AAD object id for the user
+     required: true 
+     default: [AAD object id]
+   
+ #Do Not change these values
+      
+
+jobs:
+  Create-Environments:
+    runs-on: ubuntu-latest
+    # or you can say runs-on: windows-latest
+    env:
+      RUNNER_DEBUG: 1
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        lfs: true
+        
+    - name: Create Developer Environment
+      uses: microsoft/powerplatform-actions/create-environment@v0
+      with:
+        app-id: ${{secrets.CLIENT_ID}}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{secrets.TENANT_ID}}
+        name: ${{ github.event.inputs.env_name}}_Dev
+        type: Developer
+        domain: ${{ github.event.inputs.env_name}}Dev
+    
+    - name: assign-user to developer environment
+      uses:  microsoft/powerplatform-actions/assign-user@v0
+      with:
+        app-id: ${{secrets.CLIENT_ID}}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{secrets.TENANT_ID}}
+        environment: 'https://${{ github.event.inputs.env_name}}Dev.dynamics.com'
+        user: ${{ github.event.inputs.user_id }}
+        role: System Administrator
+        
+    - name: Create Test Environment
+      uses: microsoft/powerplatform-actions/create-environment@v0
+      with:
+        app-id: ${{secrets.CLIENT_ID}}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{secrets.TENANT_ID}}
+        name: ${{ github.event.inputs.env_name}}_Test
+        type: Sandbox
+        domain: ${{ github.event.inputs.env_name}}Test
+
+    - name: assign-user to test environment
+      uses:  microsoft/powerplatform-actions/assign-user@v0
+      with:
+        app-id: ${{secrets.CLIENT_ID}}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{secrets.TENANT_ID}}
+        environment: 'https://${{ github.event.inputs.env_name}}Test.crm.dynamics.com'
+        user: ${{ github.event.inputs.user_id }}
+        role: System Administrator
+        
+        
+    - name: Create Production Environment
+      uses: microsoft/powerplatform-actions/create-environment@v0
+      with:
+        app-id: ${{secrets.CLIENT_ID}}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{secrets.TENANT_ID}}
+        name: ${{ github.event.inputs.env_name}}_Prod
+        type: Production
+        domain: ${{ github.event.inputs.env_name}}Prod
+
+    - name: assign-user to Prod environment
+      uses:  microsoft/powerplatform-actions/assign-user@v0
+      with:
+        app-id: ${{secrets.CLIENT_ID}}
+        client-secret: ${{ secrets.PowerPlatformSPN }}
+        tenant-id: ${{secrets.TENANT_ID}}
+        environment: 'https://${{ github.event.inputs.env_name}}Prod.crm.dynamics.com'
+        user: ${{ github.event.inputs.user_id }}
+        role: System Administrator
