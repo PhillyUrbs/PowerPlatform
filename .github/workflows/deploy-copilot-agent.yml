@@ -1,0 +1,27 @@
+name: Deploy Copilot Agent Solution
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Install Power Platform Tools
+      uses: microsoft/powerplatform-actions/actions-install@v1
+
+    - name: Import Solution
+      uses: microsoft/powerplatform-actions/import-solution@v1
+      with:
+        environment-url: ${{ secrets.POWERPLATFORM_ENV_URL }}
+        client-id: ${{ secrets.CLIENT_ID }}
+        tenant-id: ${{ secrets.TENANT_ID }}
+        client-secret: ${{ secrets.CLIENT_SECRET }}
+        solution-path: 'solutions/AgentSolution.zip'
+        publish-changes: true
