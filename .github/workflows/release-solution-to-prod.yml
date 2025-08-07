@@ -94,21 +94,17 @@ jobs:
 
   release-to-staging:
     needs: [ convert-to-managed ]
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     env:
       RUNNER_DEBUG: 1
 
     steps:
-    - name: Install Power Platform CLI
-      uses: microsoft/powerplatform-actions/actions-install@v1
-      
-
     - uses: actions/checkout@v4
       with:
         lfs: true
 
- #   - name: Install Power Platform CLI
- #     uses: microsoft/powerplatform-actions/actions-install@v1
+    - name: Install Power Platform CLI
+      uses: microsoft/powerplatform-actions/actions-install@v1
 
 #    - name: Manually install PAC CLI
 #      run: |
