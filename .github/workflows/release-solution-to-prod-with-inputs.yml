@@ -134,7 +134,7 @@ jobs:
         check_secret TENANT_ID "${{ secrets.TENANT_ID }}"
         check_secret envSecret "${{ secrets.envSecret }}"
         if [ $fail -eq 1 ]; then echo "One or more required secrets for production not set." >&2; exit 1; fi
-    - name: Import solution to prod env
+    - name: Import solution to target env
       uses: microsoft/powerplatform-actions/import-solution@v1
       with:
         environment-url: ${{ secrets.PRODUCTION_ENVIRONMENT_URL }}
