@@ -99,34 +99,37 @@ jobs:
       RUNNER_DEBUG: 1
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        lfs: true
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
 
-    - name: Install Power Platform CLI
-      uses: microsoft/powerplatform-actions/actions-install@v1
+      - name: Manually install PAC CLI on Ubuntu
+        run: |
+          echo "Installing prerequisites..."
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https curl gnupg
+          echo "Downloading Microsoft GPG key..."
+          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+          sudo install -o root -g root -m 644 microsoft.gpg /usr/share/keyrings/
+          sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/microsoft-ubuntu-focal-prod focal main" > /etc/apt/sources.list.d/microsoft.list'
+          sudo apt-get update
+          echo "Installing Microsoft.PowerApps.CLI..."
+          sudo apt-get install -y microsoft.powerapps.cli
+          pac --version
 
-#    - name: Manually install PAC CLI
-#      run: |
-#        Invoke-WebRequest https://aka.ms/PowerAppsCLI -OutFile pac.msi
-#        Start-Process msiexec.exe -Wait -ArgumentList '/I pac.msi /quiet'
-#      shell: pwsh
+      - name: Fetch the ready to ship solution from GH artifact store
+        uses: actions/download-artifact@v5
+        with:
+          name: managedSolutions
+          path: ${{ github.event.inputs.solution_release_folder }}
 
-    - name: Verify PAC Install
-      run: pac --version
-
-    - name: Fetch the ready to ship solution from GH artifact store
-      uses: actions/download-artifact@v5
-      with:
-        name: managedSolutions
-        path: ${{ github.event.inputs.solution_release_folder}}
-    - name: Import solution to prod env
-      uses: microsoft/powerplatform-actions/import-solution@v1
-      with:
-        environment-url: ${{env.PRODUCTION_ENVIRONMENT_URL}}
-        app-id: ${{env.CLIENT_ID}}
-        client-secret: ${{ secrets.POWERPLATFORMSPN }}
-        tenant-id: ${{env.TENANT_ID}}
-        solution-file: ${{ github.event.inputs.solution_release_folder}}/${{ github.event.inputs.solution_name }}.zip
-        force-overwrite: true
-        publish-changes: true
+      - name: Import solution to prod env
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: ${{ env.PRODUCTION_ENVIRONMENT_URL }}
+          app-id: ${{ env.CLIENT_ID }}
+          client-secret: ${{ secrets.POWERPLATFORMSPN }}
+          tenant-id: ${{ env.TENANT_ID }}
+          solution-file: ${{ github.event.inputs.solution_release_folder }}/${{ github.event.inputs.solution_name }}.zip
+          force-overwrite: true
+          publish-changes: true
