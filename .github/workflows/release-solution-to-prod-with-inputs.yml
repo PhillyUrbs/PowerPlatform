@@ -50,7 +50,7 @@ on:
         required: true
 
 jobs:
-  convert-to-managed-solution:
+  convert-to-managed:
     runs-on: windows-latest
     # or you can say runs-on: ubuntu-latest
     env:
