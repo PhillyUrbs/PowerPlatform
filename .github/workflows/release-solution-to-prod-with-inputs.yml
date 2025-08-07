@@ -104,7 +104,7 @@ jobs:
         name: managedSolutions
         path: ${{ inputs.solution_shipping_folder }}
 
-  release-to-staging:
+  release-to-power-platform:
     needs: [ convert-to-managed-solution ]
     runs-on: windows-latest
     env:
