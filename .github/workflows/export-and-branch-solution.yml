@@ -23,15 +23,16 @@ on:
        description: 'folder name to be created and checked in *do not change*'
        required: true
        default: solutions/
+
 env:
 #edit your values here
   ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_DEV }}
   CLIENT_ID: ${{ secrets.POWERPLATFORM_APPID }}
   TENANT_ID: ${{ secrets.TENANTID }}
+
 permissions:
   contents: write
 
-  
 jobs:
   export-from-dev:
     runs-on: windows-latest
@@ -40,14 +41,15 @@ jobs:
       RUNNER_DEBUG: 1
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
       with:
         lfs: true
     
     - name: Install Power Platform CLI
       uses: microsoft/powerplatform-actions/actions-install@v1
 
-    - name: who-am-i action
+    - name: Who am I
       uses: microsoft/powerplatform-actions/who-am-i@v1
       with:
         environment-url: ${{env.ENVIRONMENT_URL}}
@@ -55,7 +57,7 @@ jobs:
         client-secret: ${{ secrets.POWERPLATFORMSPN }}
         tenant-id: ${{env.TENANT_ID}}
 
-    - name: export-solution action
+    - name: Export Solution
       uses: microsoft/powerplatform-actions/export-solution@v1
       with:
         environment-url: ${{env.ENVIRONMENT_URL}}
@@ -65,7 +67,7 @@ jobs:
         solution-name: ${{ github.event.inputs.solution_name }}
         solution-output-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
 
-    - name: unpack-solution action
+    - name: Unpack Solution
       uses: microsoft/powerplatform-actions/unpack-solution@v1
       with:
         solution-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
@@ -73,7 +75,7 @@ jobs:
         solution-type: 'Unmanaged'
         overwrite-files: true
 
-    - name: branch-solution, prepare it for a PullRequest
+    - name: Branch Solution for Pull Request
       uses: microsoft/powerplatform-actions/branch-solution@v1
       with:
         solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
