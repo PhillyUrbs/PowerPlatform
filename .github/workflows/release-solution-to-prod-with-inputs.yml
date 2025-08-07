@@ -25,7 +25,7 @@ on:
       solution_release_folder:
         description: 'folder where the released binaries are going to be hosted *do not change*'
         type: string
-        default: out/release
+        default: out/release/
     secrets:
       envSecret:
         description: 'The secret value for authentication using SPN'
@@ -120,6 +120,9 @@ jobs:
       with:
         name: managedSolutions
         path: ${{ inputs.solution_release_folder }}
+    - name: Debug downloaded artifacts
+      run: |
+        echo "Listing release folder: ${{ inputs.solution_release_folder }}" && dir "${{ inputs.solution_release_folder }}"
     - name: Validate production environment secrets
       if: always()
       shell: bash
