@@ -62,6 +62,16 @@ jobs:
         echo "Computed solution-folder='${{ inputs.solution_source_folder }}${{ inputs.solution_name }}'"
         echo "Listing repository root:" && dir
         echo "Listing solution source folder:" && dir "${{ inputs.solution_source_folder }}${{ inputs.solution_name }}" || echo "Folder not found"
+    - name: Validate build environment secrets
+      shell: bash
+      run: |
+        fail=0
+        check_secret() { name=$1; val=$2; if [ -z "$val" ] || [ "$val" = "" ]; then echo "Missing or empty secret: $name" >&2; fail=1; else echo "$name present (length >0)"; fi; }
+        check_secret BUILD_ENVIRONMENT_URL "${{ secrets.BUILD_ENVIRONMENT_URL }}"
+        check_secret CLIENT_ID "${{ secrets.CLIENT_ID }}"
+        check_secret TENANT_ID "${{ secrets.TENANT_ID }}"
+        check_secret envSecret "${{ secrets.envSecret }}"
+        if [ $fail -eq 1 ]; then echo "One or more required secrets not set." >&2; exit 1; fi
     - name: Pack Solution
       uses: microsoft/powerplatform-actions/pack-solution@v1
       with:
@@ -110,6 +120,17 @@ jobs:
       with:
         name: managedSolutions
         path: ${{ inputs.solution_release_folder }}
+    - name: Validate production environment secrets
+      if: always()
+      shell: bash
+      run: |
+        fail=0
+        check_secret() { name=$1; val=$2; if [ -z "$val" ] || [ "$val" = "" ]; then echo "Missing or empty secret: $name" >&2; fail=1; else echo "$name present (length >0)"; fi; }
+        check_secret PRODUCTION_ENVIRONMENT_URL "${{ secrets.PRODUCTION_ENVIRONMENT_URL }}"
+        check_secret CLIENT_ID "${{ secrets.CLIENT_ID }}"
+        check_secret TENANT_ID "${{ secrets.TENANT_ID }}"
+        check_secret envSecret "${{ secrets.envSecret }}"
+        if [ $fail -eq 1 ]; then echo "One or more required secrets for production not set." >&2; exit 1; fi
     - name: Import solution to prod env
       uses: microsoft/powerplatform-actions/import-solution@v1
       with:
