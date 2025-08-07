@@ -19,7 +19,12 @@ jobs:
       - name: Get release information
         id: get_release
         run: |
-          echo "is_prerelease=$(jq -r .prerelease $GITHUB_EVENT_PATH)" >> $GITHUB_OUTPUT
+          echo "Event name: $GITHUB_EVENT_NAME"  
+          echo "Raw prerelease value (release.prerelease):"  
+          jq '.release.prerelease' "$GITHUB_EVENT_PATH" || true
+          PRERELEASE=$(jq -r '.release.prerelease // false' "$GITHUB_EVENT_PATH")
+          echo "Resolved prerelease=$PRERELEASE"
+          echo "is_prerelease=$PRERELEASE" >> $GITHUB_OUTPUT
 
   deploy-preprod:
     needs: check-pre-release
@@ -36,7 +41,7 @@ jobs:
 
   deploy-prod:
     needs: check-pre-release
-    if: needs.check-pre-release.outputs.is_prerelease == 'false'
+    if: needs.check-pre-release.outputs.is_prerelease != 'true'
     uses: ./.github/workflows/release-solution-to-prod-with-inputs.yml
     with:
       solution_name: ALMLab
