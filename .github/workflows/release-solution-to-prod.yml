@@ -57,7 +57,7 @@ jobs:
     - name: Install Power Platform CLI
       uses: microsoft/powerplatform-actions/actions-install@v1
 
-    - name: Pack solution
+    - name: Pack Solution
       uses: microsoft/powerplatform-actions/pack-solution@v1
       with:
         solution-folder: ${{ github.event.inputs.solution_source_folder}}/${{ github.event.inputs.solution_name }}
@@ -111,6 +111,7 @@ jobs:
       with:
         name: managedSolutions
         path: ${{ github.event.inputs.solution_release_folder}}
+
     - name: Import solution to prod env
       uses: microsoft/powerplatform-actions/import-solution@v1
       with:
