@@ -21,17 +21,29 @@ jobs:
         run: |
           echo "is_prerelease=$(jq -r .prerelease $GITHUB_EVENT_PATH)" >> $GITHUB_OUTPUT
 
-  Release-solution-to-pre-prod:
+  deploy-preprod:
+    needs: check-pre-release
+    if: needs.check-pre-release.outputs.is_prerelease == 'true'
+    uses: ./.github/workflows/release-solution-to-prod-with-inputs.yml
+    with:
+      solution_name: ALMLab
+    secrets:
+      envSecret: ${{ secrets.POWERPLATFORMSPN }}
+      BUILD_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_DEV }}
+      PRODUCTION_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_PREPROD }}
+      CLIENT_ID: ${{ secrets.POWERPLATFORM_APPID }}
+      TENANT_ID: ${{ secrets.TENANTID }}
+
+  deploy-prod:
     needs: check-pre-release
     if: needs.check-pre-release.outputs.is_prerelease == 'false'
     uses: ./.github/workflows/release-solution-to-prod-with-inputs.yml
     with:
-      #You can specify the solution name here
       solution_name: ALMLab
-      #Update your values here
-      BUILD_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_DEV }}
-      PRODUCTION_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_PREPROD }}
-      CLIENT_ID: ${{ secrets.POWERPLATFORM_APPID }}
-      TENANT_ID: ${{ secrets.TENANTID }}    
     secrets:
       envSecret: ${{ secrets.POWERPLATFORMSPN }}
+      BUILD_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_DEV }}
+      # Replace ENVIRONMENTURL_PROD with the actual secret name for your production environment.
+      PRODUCTION_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_PROD }}
+      CLIENT_ID: ${{ secrets.POWERPLATFORM_APPID }}
+      TENANT_ID: ${{ secrets.TENANTID }}

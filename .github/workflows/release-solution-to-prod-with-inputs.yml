@@ -6,8 +6,6 @@ on:
   workflow_call:
     inputs: 
       #Do Not change these values
-      #Values are set by the caller
-      #caller sample: release-action-call.ymnl
       solution_name:
         description: 'The solution name.'
         type: string
@@ -28,42 +26,34 @@ on:
         description: 'folder where the released binaries are going to be hosted *do not change*'
         type: string
         default: out/release
-      BUILD_ENVIRONMENT_URL:
-        description: 'Build environment url.'
-        type: string
-        required: true      
-      PRODUCTION_ENVIRONMENT_URL: 
-        description: 'Production environment url.'
-        type: string
-        required: true
-      CLIENT_ID: 
-        description: 'The client id'
-        type: string
-        required: true
-      TENANT_ID: 
-        description: 'The tenant id'
-        type: string
-        required: true
     secrets:
       envSecret:
         description: 'The secret value for authentication using SPN'
         required: true
+      BUILD_ENVIRONMENT_URL:
+        description: 'Build environment url.'
+        required: true
+      PRODUCTION_ENVIRONMENT_URL:
+        description: 'Production environment url.'
+        required: true
+      CLIENT_ID:
+        description: 'The client id'
+        required: true
+      TENANT_ID:
+        description: 'The tenant id'
+        required: true
 
 jobs:
-  convert-to-managed:
+  convert-to-managed-solution:
     runs-on: windows-latest
-    # or you can say runs-on: ubuntu-latest
     env:
       RUNNER_DEBUG: 1
-
     steps:
     - uses: actions/checkout@v4
       with:
         lfs: true
-
     - name: Install Power Platform CLI
       uses: microsoft/powerplatform-actions/actions-install@v1
-
     - name: Debug solution path inputs
       run: |
         echo "inputs.solution_source_folder='${{ inputs.solution_source_folder }}'"
@@ -72,36 +62,32 @@ jobs:
         echo "Computed solution-folder='${{ inputs.solution_source_folder }}${{ inputs.solution_name }}'"
         echo "Listing repository root:" && dir
         echo "Listing solution source folder:" && dir "${{ inputs.solution_source_folder }}${{ inputs.solution_name }}" || echo "Folder not found"
-
     - name: Pack Solution
       uses: microsoft/powerplatform-actions/pack-solution@v1
       with:
         solution-folder: ${{ inputs.solution_source_folder }}${{ inputs.solution_name }}
         solution-file: ${{ inputs.solution_outbound_folder }}${{ inputs.solution_name }}.zip
         solution-type: Unmanaged
-
     - name: Import solution as unmanaged to build env
       uses: microsoft/powerplatform-actions/import-solution@v1
       with:
-        environment-url: ${{ inputs.BUILD_ENVIRONMENT_URL }}
-        app-id: ${{ inputs.CLIENT_ID }}
+        environment-url: ${{ secrets.BUILD_ENVIRONMENT_URL }}
+        app-id: ${{ secrets.CLIENT_ID }}
         client-secret: ${{ secrets.envSecret }}
-        tenant-id: ${{ inputs.TENANT_ID }}
+        tenant-id: ${{ secrets.TENANT_ID }}
         solution-file: ${{ inputs.solution_outbound_folder }}${{ inputs.solution_name }}.zip
         force-overwrite: true
         publish-changes: true
-
     - name: Export solution as managed
       uses: microsoft/powerplatform-actions/export-solution@v1
       with:
-        environment-url: ${{ inputs.BUILD_ENVIRONMENT_URL }}
-        app-id: ${{ inputs.CLIENT_ID }}
+        environment-url: ${{ secrets.BUILD_ENVIRONMENT_URL }}
+        app-id: ${{ secrets.CLIENT_ID }}
         client-secret: ${{ secrets.envSecret }} 
-        tenant-id: ${{ inputs.TENANT_ID }}
+        tenant-id: ${{ secrets.TENANT_ID }}
         solution-name: ${{ inputs.solution_name }}
         managed: true
         solution-output-file: ${{ inputs.solution_shipping_folder }}${{ inputs.solution_name }}_managed.zip
-
     - name: Upload the ready to ship solution to GH artifact store
       uses: actions/upload-artifact@v4
       with:
@@ -109,32 +95,28 @@ jobs:
         path: ${{ inputs.solution_shipping_folder }}
 
   release-to-staging:
-    needs: [ convert-to-managed ]
+    needs: [ convert-to-managed-solution ]
     runs-on: windows-latest
     env:
       RUNNER_DEBUG: 1
-
     steps:
     - uses: actions/checkout@v4
       with:
         lfs: true
-
     - name: Install Power Platform CLI
       uses: microsoft/powerplatform-actions/actions-install@v1
-
     - name: Fetch the ready to ship solution from GH artifact store
       uses: actions/download-artifact@v5
       with:
         name: managedSolutions
         path: ${{ inputs.solution_release_folder }}
-
     - name: Import solution to prod env
       uses: microsoft/powerplatform-actions/import-solution@v1
       with:
-        environment-url: ${{ inputs.PRODUCTION_ENVIRONMENT_URL }}
-        app-id: ${{ inputs.CLIENT_ID }}
+        environment-url: ${{ secrets.PRODUCTION_ENVIRONMENT_URL }}
+        app-id: ${{ secrets.CLIENT_ID }}
         client-secret: ${{ secrets.envSecret }}
-        tenant-id: ${{ inputs.TENANT_ID }}
+        tenant-id: ${{ secrets.TENANT_ID }}
         solution-file: ${{ inputs.solution_release_folder }}${{ inputs.solution_name }}_managed.zip
         force-overwrite: true
         publish-changes: true
