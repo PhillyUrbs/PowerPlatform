@@ -99,6 +99,10 @@ jobs:
       RUNNER_DEBUG: 1
 
     steps:
+    - name: Install Power Platform CLI
+      uses: microsoft/powerplatform-actions/actions-install@v1
+      
+
     - uses: actions/checkout@v4
       with:
         lfs: true
@@ -106,11 +110,11 @@ jobs:
  #   - name: Install Power Platform CLI
  #     uses: microsoft/powerplatform-actions/actions-install@v1
 
-    - name: Manually install PAC CLI
-      run: |
-        Invoke-WebRequest https://aka.ms/PowerAppsCLI -OutFile pac.msi
-        Start-Process msiexec.exe -Wait -ArgumentList '/I pac.msi /quiet'
-      shell: pwsh
+#    - name: Manually install PAC CLI
+#      run: |
+#        Invoke-WebRequest https://aka.ms/PowerAppsCLI -OutFile pac.msi
+#        Start-Process msiexec.exe -Wait -ArgumentList '/I pac.msi /quiet'
+#      shell: pwsh
 
     - name: Verify PAC Install
       run: pac --version
