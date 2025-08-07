@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>1</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{5e2516d2-26f9-48e1-956b-9c3e4673063f}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="almlab_newcolumn" select="1" icon="1" preview="1">
+        <row name="result" id="almlab_timeoffrequestid">
+          <cell name="almlab_newcolumn" width="300" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>4</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="almlab_timeoffrequest">
+          <attribute name="almlab_timeoffrequestid" />
+          <attribute name="almlab_newcolumn" />
+          <attribute name="createdon" />
+          <order attribute="almlab_newcolumn" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <filter type="or" isquickfindfields="1">
+            <condition attribute="almlab_newcolumn" operator="like" value="{0}" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Quick Find Active Time Off Requests" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>
