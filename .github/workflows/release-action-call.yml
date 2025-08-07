@@ -4,7 +4,8 @@ name: Release action
 
 on:
   release:
-      types: [created]        
+    types: [published, prereleased]
+  workflow_dispatch: {}
 
 permissions:
   contents: write
