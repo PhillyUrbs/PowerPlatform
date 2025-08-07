@@ -11,7 +11,7 @@ on:
         description: 'name of the solution to worked on from Power Platform'
         required: true
         default: ALMLab
-       #Do Not change these values
+      # Do Not change these values
       solution_shipping_folder:
         description: 'folder name for staging the exported solution *do not change*'
         required: true
@@ -21,13 +21,13 @@ on:
         required: true
         default: out/solutions/
       solution_source_folder: 
-       description: 'folder name to be created and checked in *do not change*'
-       required: true
-       default: solutions/
+        description: 'folder name to be created and checked in *do not change*'
+        required: true
+        default: solutions/
       solution_release_folder:
-       description: 'folder where the released binaries are going to be hosted *do not change*'
-       required: true
-       default: out/release
+        description: 'folder where the released binaries are going to be hosted *do not change*'
+        required: true
+        default: out/release
   release:
     types: [created]
   
@@ -45,7 +45,7 @@ permissions:
 jobs:
   convert-to-managed:
     runs-on: windows-latest
-    # or you can say runs-on: ubuntu-latest
+    # or you can use ubuntu-latest
     env:
       RUNNER_DEBUG: 1
 
@@ -57,7 +57,7 @@ jobs:
     - name: Install Power Platform CLI
       uses: microsoft/powerplatform-actions/actions-install@v1
 
-    - name: Pack solution
+    - name: Pack Solution
       uses: microsoft/powerplatform-actions/pack-solution@v1
       with:
         solution-folder: ${{ github.event.inputs.solution_source_folder}}/${{ github.event.inputs.solution_name }}
@@ -111,6 +111,7 @@ jobs:
       with:
         name: managedSolutions
         path: ${{ github.event.inputs.solution_release_folder}}
+
     - name: Import solution to prod env
       uses: microsoft/powerplatform-actions/import-solution@v1
       with:

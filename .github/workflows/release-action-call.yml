@@ -5,10 +5,24 @@ name: Release action
 on:
   release:
       types: [created]        
+
 permissions:
   contents: write
+
 jobs:
-  Release-solution-ALMLab:
+  check-pre-release:
+    runs-on: ubuntu-latest
+    outputs:
+      is_prerelease: ${{ steps.get_release.outputs.is_prerelease }}
+    steps:
+      - name: Get release information
+        id: get_release
+        run: |
+          echo "is_prerelease=$(jq -r .prerelease $GITHUB_EVENT_PATH)" >> $GITHUB_OUTPUT
+
+  Release-solution-to-pre-prod:
+    needs: check-pre-release
+    if: needs.check-pre-release.outputs.is_prerelease == 'false'
     uses: ./.github/workflows/release-solution-to-prod-with-inputs.yml
     with:
       #You can specify the solution name here
