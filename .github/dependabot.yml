@@ -4,3 +4,7 @@ updates:
     directory: "/" # root of your repo
     schedule:
       interval: "weekly"  # or "daily", "monthly"
+      day: sunday
+      time: "08:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
