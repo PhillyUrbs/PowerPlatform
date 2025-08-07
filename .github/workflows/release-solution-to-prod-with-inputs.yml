@@ -64,6 +64,15 @@ jobs:
     - name: Install Power Platform CLI
       uses: microsoft/powerplatform-actions/actions-install@v1
 
+    - name: Debug solution path inputs
+      run: |
+        echo "inputs.solution_source_folder='${{ inputs.solution_source_folder }}'"
+        echo "inputs.solution_outbound_folder='${{ inputs.solution_outbound_folder }}'"
+        echo "inputs.solution_name='${{ inputs.solution_name }}'"
+        echo "Computed solution-folder='${{ inputs.solution_source_folder }}${{ inputs.solution_name }}'"
+        echo "Listing repository root:" && dir
+        echo "Listing solution source folder:" && dir "${{ inputs.solution_source_folder }}${{ inputs.solution_name }}" || echo "Folder not found"
+
     - name: Pack Solution
       uses: microsoft/powerplatform-actions/pack-solution@v1
       with:
