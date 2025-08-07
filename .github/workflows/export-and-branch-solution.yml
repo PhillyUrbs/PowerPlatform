@@ -44,6 +44,9 @@ jobs:
       with:
         fetch-depth: 0
         lfs: true
+    
+    - name: Install Power Platform CLI
+      uses: microsoft/powerplatform-actions/actions-install@v1
 
     - name: who-am-i action
       uses: microsoft/powerplatform-actions/who-am-i@v1
