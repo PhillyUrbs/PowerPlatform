@@ -34,7 +34,7 @@ jobs:
       solution_name: ALMLab
     secrets:
       envSecret: ${{ secrets.POWERPLATFORMSPN }}
-      BUILD_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_DEV }}
+      BUILD_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_BUILD }}
       PRODUCTION_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_PREPROD }}
       CLIENT_ID: ${{ secrets.POWERPLATFORM_APPID }}
       TENANT_ID: ${{ secrets.TENANTID }}
@@ -47,7 +47,7 @@ jobs:
       solution_name: ALMLab
     secrets:
       envSecret: ${{ secrets.POWERPLATFORMSPN }}
-      BUILD_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_DEV }}
+      BUILD_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_BUILD }}
       # Replace ENVIRONMENTURL_PROD with the actual secret name for your production environment.
       PRODUCTION_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_PROD }}
       CLIENT_ID: ${{ secrets.POWERPLATFORM_APPID }}
