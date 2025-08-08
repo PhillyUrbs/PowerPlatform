@@ -10,7 +10,12 @@ on:
       solution_name:
         description: 'name of the solution to worked on from Power Platform'
         required: true
-        default: ALMLab
+        type: choice
+        options:
+          # GENERATED-OPTIONS-START
+          - ALMLab
+          # GENERATED-OPTIONS-END
+  # no default; must be specified at dispatch time
       # Do Not change these values
       solution_shipping_folder:
         description: 'folder name for staging the exported solution *do not change*'

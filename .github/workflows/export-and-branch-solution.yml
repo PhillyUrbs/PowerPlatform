@@ -9,7 +9,12 @@ on:
       solution_name:
         description: 'name of the solution to worked on from Power Platform'
         required: true
-        default: ALMLab
+        type: choice
+        options:
+          # GENERATED-OPTIONS-START
+          - ALMLab
+          # GENERATED-OPTIONS-END
+  # no default; must be specified at dispatch time
       # Do Not change these values
       solution_exported_folder:
         description: 'folder name for staging the exported solution *do not change*'
@@ -74,6 +79,46 @@ jobs:
         solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
         solution-type: 'Unmanaged'
         overwrite-files: true
+
+    - name: Ensure solutions.json includes exported solution
+      id: ensure_json
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          const sol = process.env.SOLUTION_NAME;
+          const file = path.join(process.env.GITHUB_WORKSPACE, 'solutions.json');
+          let changed = false;
+          let arr = [];
+          if (fs.existsSync(file)) {
+            try { arr = JSON.parse(fs.readFileSync(file, 'utf8')) || []; } catch {}
+          }
+          if (!Array.isArray(arr)) arr = [];
+          const names = new Set(arr.map(s => String(s).trim()).filter(Boolean));
+          if (!names.has(sol)) {
+            names.add(sol);
+            const out = Array.from(names).sort();
+            fs.writeFileSync(file, JSON.stringify(out, null, 2) + '\n');
+            changed = true;
+          }
+          // github-script automatically sets the 'result' output to the returned value
+          return String(changed);
+      env:
+        SOLUTION_NAME: ${{ github.event.inputs.solution_name }}
+
+    - name: Open PR to add solution to solutions.json (if needed)
+      if: ${{ steps.ensure_json.outputs.result == 'true' }}
+      uses: peter-evans/create-pull-request@v6
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+  base: main
+        commit-message: "chore: add ${{ github.event.inputs.solution_name }} to solutions.json"
+        title: "chore: add ${{ github.event.inputs.solution_name }} to solutions.json"
+        body: |
+          This PR adds the solution name `${{ github.event.inputs.solution_name }}` to `solutions.json` so it appears in dropdowns.
+        branch: chore/add-solution-${{ github.event.inputs.solution_name }}-to-json
+        delete-branch: true
 
     - name: Branch Solution for Pull Request
       uses: microsoft/powerplatform-actions/branch-solution@v1

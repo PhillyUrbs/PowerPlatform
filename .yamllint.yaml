@@ -1,0 +1,14 @@
+extends: default
+
+rules:
+  document-start: disable  # don't require --- at top
+  line-length:
+    max: 160
+    allow-non-breakable-words: true
+  truthy: disable  # allow unquoted true/false/on/off which are common in workflows
+  indentation:
+    indent: 2
+    indent-sequences: consistent
+  trailing-spaces: enable
+  new-line-at-end-of-file: enable
+  comments-indentation: disable
