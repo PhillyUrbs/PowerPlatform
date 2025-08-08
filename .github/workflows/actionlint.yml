@@ -25,5 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: actionlint
-        uses: rhysd/actionlint@v1.7.7
+      - name: Run pre-commit (yamllint + actionlint)
+        uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: --all-files
