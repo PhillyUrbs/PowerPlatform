@@ -46,84 +46,84 @@ jobs:
       RUNNER_DEBUG: 1
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        lfs: true
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
 
-    - name: Install Power Platform CLI
-      uses: microsoft/powerplatform-actions/actions-install@v1
+      - name: Install Power Platform CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
 
-    - name: Who am I
-      uses: microsoft/powerplatform-actions/who-am-i@v1
-      with:
-        environment-url: ${{env.ENVIRONMENT_URL}}
-        app-id: ${{env.CLIENT_ID}}
-        client-secret: ${{ secrets.POWERPLATFORMSPN }}
-        tenant-id: ${{env.TENANT_ID}}
+      - name: Who am I
+        uses: microsoft/powerplatform-actions/who-am-i@v1
+        with:
+          environment-url: ${{env.ENVIRONMENT_URL}}
+          app-id: ${{env.CLIENT_ID}}
+          client-secret: ${{ secrets.POWERPLATFORMSPN }}
+          tenant-id: ${{env.TENANT_ID}}
 
-    - name: Export Solution
-      uses: microsoft/powerplatform-actions/export-solution@v1
-      with:
-        environment-url: ${{env.ENVIRONMENT_URL}}
-        app-id: ${{env.CLIENT_ID}}
-        client-secret: ${{ secrets.POWERPLATFORMSPN }}
-        tenant-id: ${{env.TENANT_ID}}
-        solution-name: ${{ github.event.inputs.solution_name }}
-        solution-output-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
+      - name: Export Solution
+        uses: microsoft/powerplatform-actions/export-solution@v1
+        with:
+          environment-url: ${{env.ENVIRONMENT_URL}}
+          app-id: ${{env.CLIENT_ID}}
+          client-secret: ${{ secrets.POWERPLATFORMSPN }}
+          tenant-id: ${{env.TENANT_ID}}
+          solution-name: ${{ github.event.inputs.solution_name }}
+          solution-output-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
 
-    - name: Unpack Solution
-      uses: microsoft/powerplatform-actions/unpack-solution@v1
-      with:
-        solution-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
-        solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
-        solution-type: 'Unmanaged'
-        overwrite-files: true
+      - name: Unpack Solution
+        uses: microsoft/powerplatform-actions/unpack-solution@v1
+        with:
+          solution-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
+          solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
+          solution-type: 'Unmanaged'
+          overwrite-files: true
 
-    - name: Ensure solutions.json includes exported solution
-      id: ensure_json
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const fs = require('fs');
-          const path = require('path');
-          const sol = process.env.SOLUTION_NAME;
-          const file = path.join(process.env.GITHUB_WORKSPACE, 'solutions.json');
-          let changed = false;
-          let arr = [];
-          if (fs.existsSync(file)) {
-            try { arr = JSON.parse(fs.readFileSync(file, 'utf8')) || []; } catch {}
-          }
-          if (!Array.isArray(arr)) arr = [];
-          const names = new Set(arr.map(s => String(s).trim()).filter(Boolean));
-          if (!names.has(sol)) {
-            names.add(sol);
-            const out = Array.from(names).sort();
-            fs.writeFileSync(file, JSON.stringify(out, null, 2) + '\n');
-            changed = true;
-          }
-          // github-script automatically sets the 'result' output to the returned value
-          return String(changed);
-      env:
-        SOLUTION_NAME: ${{ github.event.inputs.solution_name }}
+      - name: Ensure solutions.json includes exported solution
+        id: ensure_json
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const sol = process.env.SOLUTION_NAME;
+            const file = path.join(process.env.GITHUB_WORKSPACE, 'solutions.json');
+            let changed = false;
+            let arr = [];
+            if (fs.existsSync(file)) {
+              try { arr = JSON.parse(fs.readFileSync(file, 'utf8')) || []; } catch {}
+            }
+            if (!Array.isArray(arr)) arr = [];
+            const names = new Set(arr.map(s => String(s).trim()).filter(Boolean));
+            if (!names.has(sol)) {
+              names.add(sol);
+              const out = Array.from(names).sort();
+              fs.writeFileSync(file, JSON.stringify(out, null, 2) + '\n');
+              changed = true;
+            }
+            // github-script automatically sets the 'result' output to the returned value
+            return String(changed);
+        env:
+          SOLUTION_NAME: ${{ github.event.inputs.solution_name }}
 
-    - name: Open PR to add solution to solutions.json (if needed)
-      if: ${{ steps.ensure_json.outputs.result == 'true' }}
-      uses: peter-evans/create-pull-request@v6
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        base: main
-        commit-message: "chore: add ${{ github.event.inputs.solution_name }} to solutions.json"
-        title: "chore: add ${{ github.event.inputs.solution_name }} to solutions.json"
-        body: |
-          This PR adds the solution name `${{ github.event.inputs.solution_name }}` to `solutions.json` so it appears in dropdowns.
-        branch: chore/add-solution-${{ github.event.inputs.solution_name }}-to-json
-        delete-branch: true
+      - name: Open PR to add solution to solutions.json (if needed)
+        if: ${{ steps.ensure_json.outputs.result == 'true' }}
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          commit-message: "chore: add ${{ github.event.inputs.solution_name }} to solutions.json"
+          title: "chore: add ${{ github.event.inputs.solution_name }} to solutions.json"
+          body: |
+            This PR adds the solution name `${{ github.event.inputs.solution_name }}` to `solutions.json` so it appears in dropdowns.
+          branch: chore/add-solution-${{ github.event.inputs.solution_name }}-to-json
+          delete-branch: true
 
-    - name: Branch Solution for Pull Request
-      uses: microsoft/powerplatform-actions/branch-solution@v1
-      with:
-        solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
-        solution-target-folder: ${{ github.event.inputs.solution_target_folder}}/${{ github.event.inputs.solution_name }}
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        allow-empty-commit: true
+      - name: Branch Solution for Pull Request
+        uses: microsoft/powerplatform-actions/branch-solution@v1
+        with:
+          solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
+          solution-target-folder: ${{ github.event.inputs.solution_target_folder}}/${{ github.event.inputs.solution_name }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          allow-empty-commit: true
