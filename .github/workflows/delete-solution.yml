@@ -76,6 +76,7 @@ jobs:
           commit-message: "chore: delete solution ${{ github.event.inputs.solution_name_choice }}"
           title: "chore: delete solution ${{ github.event.inputs.solution_name_choice }}"
           body: |
-            This PR deletes the backed-up solution `${{ github.event.inputs.solution_name_choice }}` from the `solutions/` folder and updates `solutions.json` accordingly.
+            This PR deletes the backed-up solution `${{ github.event.inputs.solution_name_choice }}`
+            from the `solutions/` folder and updates `solutions.json` accordingly.
           branch: chore/delete-solution-${{ github.event.inputs.solution_name_choice }}
           delete-branch: true
