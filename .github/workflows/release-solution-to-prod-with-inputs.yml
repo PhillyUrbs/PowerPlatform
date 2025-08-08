@@ -5,7 +5,7 @@ name: release-solution-to-prod-reusable
 on:
   workflow_call:
     inputs:
-      #Do Not change these values
+      # Do Not change these values
       solution_name:
         description: 'The solution name.'
         type: string

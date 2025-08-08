@@ -26,4 +26,3 @@ jobs:
           format: github
           file_or_dir: .
           strict: false
-

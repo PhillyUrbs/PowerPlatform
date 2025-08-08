@@ -33,12 +33,9 @@ on:
         description: 'folder where the released binaries are going to be hosted *do not change*'
         required: true
         default: out/release
-#  release:
-#    types: [created]
 
-
+# edit your values here
 env:
-#edit your values here
   BUILD_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_DEV }}
   PRODUCTION_ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_PREPROD }}
   CLIENT_ID: ${{ secrets.POWERPLATFORM_APPID }}
