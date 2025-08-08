@@ -15,10 +15,10 @@ This repo keeps your solutions as source (unpacked) under `solutions/` and autom
 - `solutions.json` — Source of truth list of solution names used to populate workflow dropdowns.
 - `scripts/` — Utility scripts for local maintenance (e.g., syncing dropdown options).
 - `.github/workflows/` — CI workflows:
-	- `export-and-branch-solution.yml` — Export from DEV, unpack, and open a PR with changes.
-	- `release-solution-to-prod-with-inputs.yml` / `release-action-call.yml` — Release pipeline (invoke and/or orchestrate releases).
-	- `sync-solution-choices.yml` — Keeps dropdown options in workflows in sync with `solutions.json`.
-	- `delete-solution.yml` — Deletes a backed-up solution folder from `solutions/` and opens a PR with the removal.
+  - `export-and-branch-solution.yml` — Export from DEV, unpack, and open a PR with changes.
+  - `release-solution-to-prod-with-inputs.yml` / `release-action-call.yml` — Release pipeline (invoke and/or orchestrate releases).
+  - `sync-solution-choices.yml` — Keeps dropdown options in workflows in sync with `solutions.json`.
+  - `delete-solution.yml` — Deletes a backed-up solution folder from `solutions/` and opens a PR with the removal.
 - `.yamllint.yaml` — YAML lint rules (2-space indents, max line length 160, final newline, etc.).
 - `.editorconfig` — Enforces editor settings (indentation, final newline, trimming) across contributors.
 - `.pre-commit-config.yaml` — Local hooks (yamllint, actionlint) to catch issues before committing.
@@ -46,14 +46,20 @@ Workflow: `.github/workflows/export-and-branch-solution.yml`
 Purpose: Export an unmanaged solution from DEV, unpack it, and open a PR with the changes.
 
 Inputs (workflow_dispatch):
+
 - `solution_name_choice` (choice) — Pick from `solutions.json`-backed dropdown.
 - `solution_name_custom` (string, optional) — Provide a custom name (overrides dropdown).
 - Staging folders: `solution_exported_folder`, `solution_folder`, `solution_target_folder` (use defaults unless you know you need to change them).
 
 Behavior:
+
 - Uses secrets listed above to authenticate.
 - Exports the solution zip → unpacks into `solutions/<name>`.
 - Ensures `solutions.json` contains `<name>` and opens a PR to add it if missing.
+- Reads the solution version from `Other/Solution.xml` and creates a Git tag
+  `solution/<name>@<version>` pointing at the latest `main` commit (skips if the
+  tag already exists). You can later create a GitHub Release from this tag to
+  drive the release workflow.
 
 ### Sync solution choices
 
@@ -61,7 +67,7 @@ Workflow: `.github/workflows/sync-solution-choices.yml`
 
 Purpose: Regenerates the dropdown options blocks in workflows from `solutions.json` between the markers:
 
-```
+```yaml
 # GENERATED-OPTIONS-START
 - Name1
 - Name2
@@ -77,24 +83,28 @@ Workflow: `.github/workflows/release-action-call.yml`
 Purpose: Orchestrates releases to PREPROD or PROD by calling the reusable workflow `release-solution-to-prod-with-inputs.yml`.
 
 Triggers:
+
 - GitHub Release events: `prereleased` and `released`.
 - Manual: `workflow_dispatch` with a solution dropdown.
 
 How the solution name is resolved:
+
 - For Release events, the workflow inspects the tag and the release title to extract the solution name using these patterns (in order):
-	- `solution/<name>@<version>` (e.g., `solution/ALMLab@1.2.3`)
-	- `<name>-v<version>` or `<name>-<version>` (e.g., `ALMLab-v1.2.3`)
-	- Fallback: a single token without spaces.
-	- If none match, the workflow fails with guidance to include one of the above patterns.
+  - `solution/<name>@<version>` (e.g., `solution/ALMLab@1.2.3`)
+  - `<name>-v<version>` or `<name>-<version>` (e.g., `ALMLab-v1.2.3`)
+  - Fallback: a single token without spaces.
+  - If none match, the workflow fails with guidance to include one of the above patterns.
 - For Manual runs, it uses the `solution_name` dropdown input directly.
 
 Environments and behavior:
+
 - If the GitHub Release is marked prerelease, it deploys to PREPROD (`ENVIRONMENTURL_PREPROD`).
 - If it’s a full release, it deploys to PROD (`ENVIRONMENTURL_PROD`).
 - Both paths use the build environment (`ENVIRONMENTURL_BUILD`) and call the reusable workflow with the resolved `solution_name`.
 - The manual path defaults to PREPROD (see the comment in the workflow) but can be changed in the YAML if desired.
 
 Required secrets for release:
+
 - `POWERPLATFORMSPN` (as `envSecret`)
 - `ENVIRONMENTURL_BUILD`
 - `ENVIRONMENTURL_PREPROD` (for prereleases)
@@ -103,6 +113,7 @@ Required secrets for release:
 - `TENANTID`
 
 Examples of acceptable release tags/titles:
+
 - Tag: `solution/ALMLab@1.2.3`
 - Tag: `ALMLab-v1.2.3`
 - Title: `ALMLab v1.2.3`
@@ -114,6 +125,7 @@ Workflow: `.github/workflows/delete-solution.yml`
 Purpose: Deletes `solutions/<name>` and removes the name from `solutions.json`, then opens a PR with the change.
 
 Inputs (workflow_dispatch):
+
 - `solution_name_choice` (choice) — Pick the name to delete.
 
 Safety: Runs in a PR; you review and merge the deletion.
