@@ -36,7 +36,7 @@ jobs:
           jq '.release.prerelease' "$GITHUB_EVENT_PATH" || true
           PRERELEASE=$(jq -r '.release.prerelease // false' "$GITHUB_EVENT_PATH")
           echo "Resolved prerelease=$PRERELEASE"
-          echo "is_prerelease=$PRERELEASE" >> $GITHUB_OUTPUT
+          echo "is_prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
       - name: Determine solution name from tag or title
         id: pick_solution
         shell: bash
@@ -62,7 +62,7 @@ jobs:
             exit 1
           fi
           echo "Resolved solution_name='$SOL'"
-          echo "solution_name=$SOL" >> $GITHUB_OUTPUT
+          echo "solution_name=$SOL" >> "$GITHUB_OUTPUT"
 
   deploy-preprod:
     needs: check-pre-release
