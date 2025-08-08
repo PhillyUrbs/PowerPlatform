@@ -6,14 +6,18 @@ on:
   workflow_dispatch:
     inputs:
       # Change this value
-      solution_name:
-        description: 'name of the solution to worked on from Power Platform'
+      solution_name_choice:
+        description: 'Select a solution name (or enter a custom name below to override)'
         required: true
         type: choice
         options:
           # GENERATED-OPTIONS-START
           - ALMLab
           # GENERATED-OPTIONS-END
+      solution_name_custom:
+        description: 'Optional: enter a custom solution name (overrides the dropdown if set)'
+        required: false
+        type: string
   # no default; must be specified at dispatch time
       # Do Not change these values
       solution_exported_folder:
@@ -51,6 +55,19 @@ jobs:
         with:
           lfs: true
 
+      - name: Resolve solution name (custom overrides dropdown)
+        id: resolve
+        shell: pwsh
+        run: |
+          $choice = "${{ github.event.inputs.solution_name_choice }}"
+          $custom = "${{ github.event.inputs.solution_name_custom }}"
+          if ($custom -and $custom.Trim() -ne '') { $val = $custom } else { $val = $choice }
+          $val = $val.Trim()
+          # Make available as environment variable for subsequent script steps
+          "SOLUTION_NAME=$val" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # Also expose as a step output for use in expressions
+          "solution_name=$val" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
       - name: Install Power Platform CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
@@ -69,14 +86,14 @@ jobs:
           app-id: ${{env.CLIENT_ID}}
           client-secret: ${{ secrets.POWERPLATFORMSPN }}
           tenant-id: ${{env.TENANT_ID}}
-          solution-name: ${{ github.event.inputs.solution_name }}
-          solution-output-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
+          solution-name: ${{ steps.resolve.outputs.solution_name }}
+          solution-output-file: ${{ github.event.inputs.solution_exported_folder}}/${{ steps.resolve.outputs.solution_name }}.zip
 
       - name: Unpack Solution
         uses: microsoft/powerplatform-actions/unpack-solution@v1
         with:
-          solution-file: ${{ github.event.inputs.solution_exported_folder}}/${{ github.event.inputs.solution_name }}.zip
-          solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
+          solution-file: ${{ github.event.inputs.solution_exported_folder}}/${{ steps.resolve.outputs.solution_name }}.zip
+          solution-folder: ${{ github.event.inputs.solution_folder}}/${{ steps.resolve.outputs.solution_name }}
           solution-type: 'Unmanaged'
           overwrite-files: true
 
@@ -105,7 +122,7 @@ jobs:
             // github-script automatically sets the 'result' output to the returned value
             return String(changed);
         env:
-          SOLUTION_NAME: ${{ github.event.inputs.solution_name }}
+          SOLUTION_NAME: ${{ steps.resolve.outputs.solution_name }}
 
       - name: Open PR to add solution to solutions.json (if needed)
         if: ${{ steps.ensure_json.outputs.result == 'true' }}
@@ -113,17 +130,17 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: main
-          commit-message: "chore: add ${{ github.event.inputs.solution_name }} to solutions.json"
-          title: "chore: add ${{ github.event.inputs.solution_name }} to solutions.json"
+          commit-message: "chore: add ${{ steps.resolve.outputs.solution_name }} to solutions.json"
+          title: "chore: add ${{ steps.resolve.outputs.solution_name }} to solutions.json"
           body: |
-            This PR adds the solution name `${{ github.event.inputs.solution_name }}` to `solutions.json` so it appears in dropdowns.
-          branch: chore/add-solution-${{ github.event.inputs.solution_name }}-to-json
+            This PR adds the solution name `${{ steps.resolve.outputs.solution_name }}` to `solutions.json` so it appears in dropdowns.
+          branch: chore/add-solution-${{ steps.resolve.outputs.solution_name }}-to-json
           delete-branch: true
 
       - name: Branch Solution for Pull Request
         uses: microsoft/powerplatform-actions/branch-solution@v1
         with:
-          solution-folder: ${{ github.event.inputs.solution_folder}}/${{ github.event.inputs.solution_name }}
-          solution-target-folder: ${{ github.event.inputs.solution_target_folder}}/${{ github.event.inputs.solution_name }}
+          solution-folder: ${{ github.event.inputs.solution_folder}}/${{ steps.resolve.outputs.solution_name }}
+          solution-target-folder: ${{ github.event.inputs.solution_target_folder}}/${{ steps.resolve.outputs.solution_name }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           allow-empty-commit: true
