@@ -14,9 +14,9 @@ This repo keeps your solutions as source (unpacked) under `solutions/` and autom
 - `solutions/` — Unpacked solution folders tracked in git (e.g., `solutions/ALMLab`).
 - `solutions.json` — Source of truth list of solution names used to populate workflow dropdowns.
 - `scripts/` — Utility scripts for local maintenance (e.g., syncing dropdown options).
-- `.github/workflows/` — CI workflows:
-  - `export-and-branch-solution.yml` — Export from DEV, unpack, and open a PR with changes.
-  - `release-solution-to-prod-with-inputs.yml` / `release-action-call.yml` — Release pipeline (invoke and/or orchestrate releases).
+-- `.github/workflows/` — CI workflows:
+  - `export-solution-from-dev.yml` — Export from DEV, unpack, and open a PR with changes.
+  - `release-solution.yml` / `release-action-call.yml` — Release pipeline (reusable + orchestrator).
   - `sync-solution-choices.yml` — Keeps dropdown options in workflows in sync with `solutions.json`.
   - `delete-solution.yml` — Deletes a backed-up solution folder from `solutions/` and opens a PR with the removal.
 - `.yamllint.yaml` — YAML lint rules (2-space indents, max line length 160, final newline, etc.).
@@ -41,7 +41,7 @@ Other environments (e.g., TEST/PROD) may require analogous secrets referenced by
 
 ### Export and branch a solution
 
-Workflow: `.github/workflows/export-and-branch-solution.yml`
+Workflow: `.github/workflows/export-solution-from-dev.yml`
 
 Purpose: Export an unmanaged solution from DEV, unpack it, and open a PR with the changes.
 
@@ -80,7 +80,7 @@ Triggers on changes to `solutions.json` or affected workflow files, and can be r
 
 Workflow: `.github/workflows/release-action-call.yml`
 
-Purpose: Orchestrates releases to PREPROD or PROD by calling the reusable workflow `release-solution-to-prod-with-inputs.yml`.
+Purpose: Orchestrates releases to PREPROD or PROD by calling the reusable workflow `release-solution.yml`.
 
 Triggers:
 

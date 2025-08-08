@@ -22,6 +22,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Validate selection is not placeholder
+        if: ${{ github.event.inputs.solution_name_choice == '<none>' }}
+        shell: bash
+        run: |
+          echo "You must select a real solution name, not <none>." >&2
+          exit 1
+
       - name: Delete solution folder and update solutions.json
         id: delete_and_update
         uses: actions/github-script@v7

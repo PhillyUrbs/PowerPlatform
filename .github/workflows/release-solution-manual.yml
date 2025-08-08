@@ -52,6 +52,13 @@ jobs:
       RUNNER_DEBUG: 1
 
     steps:
+      - name: Validate selection is not placeholder
+        if: ${{ github.event.inputs.solution_name == '<none>' }}
+        shell: bash
+        run: |
+          echo "You must select a real solution name, not <none>." >&2
+          exit 1
+
       - uses: actions/checkout@v4
         with:
           lfs: true

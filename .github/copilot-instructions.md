@@ -7,16 +7,16 @@ Big picture
 Key files and contracts
 - `solutions/` — Unpacked solutions tracked in git (e.g., `solutions/ALMLab/`).
 - `solutions.json` — Array of solution names. Edit this to update dropdowns.
-- `.github/workflows/export-and-branch-solution.yml` — Export from DEV, unpack, PR. Inputs: `solution_name_choice` (+ optional `solution_name_custom`), computes final name via a resolve step (`steps.resolve.outputs.solution_name`).
+- `.github/workflows/export-solution-from-dev.yml` — Export from DEV, unpack, PR. Inputs: `solution_name_choice` (+ optional `solution_name_custom`), computes final name via a resolve step (`steps.resolve.outputs.solution_name`).
 - `.github/workflows/sync-solution-choices.yml` — Rewrites dropdown lists between markers in target workflows. Targets include:
-  - `export-and-branch-solution.yml`, `release-action-call.yml`, `release-solution-to-prod.yml`, `delete-solution.yml`.
+  - `export-solution-from-dev.yml`, `release-action-call.yml`, `release-solution-manual.yml`, `delete-solution.yml`.
   - Markers to preserve: `# GENERATED-OPTIONS-START` and `# GENERATED-OPTIONS-END`. Only replace the list items between them.
 - `.github/workflows/delete-solution.yml` — Dropdown-only input. Deletes `solutions/<name>` and removes it from `solutions.json`, then opens a PR.
 - `.github/workflows/release-action-call.yml` — Orchestrates releases:
   - On Release events: resolves solution name from tag/title with patterns `solution/<name>@<ver>`, `<name>-v<ver>`, or single token; prereleases → PREPROD, full releases → PROD.
   - Manual: uses dropdown `solution_name` directly.
   - Calls `.github/workflows/release-solution-to-prod-with-inputs.yml` (reusable workflow).
-- `.github/workflows/release-solution-to-prod-with-inputs.yml` — Reusable: pack unmanaged → import to BUILD → export managed → upload artifact → download → import to target env.
+- `.github/workflows/release-solution.yml` — Reusable: pack unmanaged → import to BUILD → export managed → upload artifact → download → import to target env.
 
 Secrets and environments (required names)
 - Common: `POWERPLATFORM_APPID`, `TENANTID`, `POWERPLATFORMSPN`.

@@ -62,6 +62,12 @@ jobs:
           $choice = "${{ github.event.inputs.solution_name_choice }}"
           $custom = "${{ github.event.inputs.solution_name_custom }}"
           if ($custom -and $custom.Trim() -ne '') { $val = $custom } else { $val = $choice }
+          if ((-not $custom) -or ($custom.Trim() -eq '')) {
+            if ($choice -eq '<none>') {
+              Write-Error "No solution selected. Provide a custom solution name or select a real solution instead of <none>."
+              exit 1
+            }
+          }
           $val = $val.Trim()
           # Make available as environment variable for subsequent script steps
           "SOLUTION_NAME=$val" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append

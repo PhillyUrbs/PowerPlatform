@@ -5,8 +5,8 @@ on:
   push:
     paths:
       - solutions.json
-      - .github/workflows/export-and-branch-solution.yml
-      - .github/workflows/delete-solution.yml
+  - .github/workflows/export-solution-from-dev.yml
+  - .github/workflows/delete-solution.yml
 
 permissions:
   contents: write
@@ -25,9 +25,10 @@ jobs:
             const path = require('path');
             const jsonPath = path.join(process.env.GITHUB_WORKSPACE, 'solutions.json');
             const workflowPaths = [
-              '.github/workflows/export-and-branch-solution.yml',
+              '.github/workflows/export-solution-from-dev.yml',
               '.github/workflows/release-action-call.yml',
-              '.github/workflows/release-solution-to-prod.yml',
+              '.github/workflows/release-solution.yml',
+              '.github/workflows/release-solution-manual.yml',
               '.github/workflows/delete-solution.yml'
             ];
 
@@ -49,10 +50,11 @@ jobs:
 
             // normalize, dedupe, sort
             names = [...new Set(names.map(s => String(s).trim()).filter(Boolean))].sort();
+            let placeholderMode = false;
             if (names.length === 0) {
-              core.warning('solutions.json is empty after normalization; skipping dropdown sync to avoid empty choice lists');
-              core.setOutput('changed', false);
-              return;
+              placeholderMode = true;
+              names = ['<none>'];
+              core.info('solutions.json is empty; inserting placeholder <none> into dropdowns.');
             }
 
             const updateFile = (rel) => {

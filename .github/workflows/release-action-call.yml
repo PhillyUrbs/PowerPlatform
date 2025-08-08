@@ -21,6 +21,15 @@ permissions:
   contents: write
 
 jobs:
+  validate-manual:
+    if: github.event_name == 'workflow_dispatch' && inputs.solution_name == '<none>'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail when placeholder is selected
+        run: |
+          echo "You must select a real solution name, not <none>." >&2
+          exit 1
+
   check-pre-release:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
@@ -67,7 +76,7 @@ jobs:
   deploy-preprod:
     needs: check-pre-release
     if: github.event_name == 'release' && needs.check-pre-release.outputs.is_prerelease == 'true'
-    uses: ./.github/workflows/release-solution-to-prod-with-inputs.yml
+  uses: ./.github/workflows/release-solution.yml
     with:
       solution_name: ${{ needs.check-pre-release.outputs.solution_name }}
     secrets:
@@ -80,7 +89,7 @@ jobs:
   deploy-prod:
     needs: check-pre-release
     if: github.event_name == 'release' && needs.check-pre-release.outputs.is_prerelease != 'true'
-    uses: ./.github/workflows/release-solution-to-prod-with-inputs.yml
+  uses: ./.github/workflows/release-solution.yml
     with:
       solution_name: ${{ needs.check-pre-release.outputs.solution_name }}
     secrets:
@@ -92,8 +101,8 @@ jobs:
       TENANT_ID: ${{ secrets.TENANTID }}
 
   manual-deploy:
-    if: github.event_name == 'workflow_dispatch'
-    uses: ./.github/workflows/release-solution-to-prod-with-inputs.yml
+    if: github.event_name == 'workflow_dispatch' && inputs.solution_name != '<none>'
+  uses: ./.github/workflows/release-solution.yml
     with:
       solution_name: ${{ inputs.solution_name }}
     secrets:
