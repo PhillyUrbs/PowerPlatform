@@ -76,7 +76,7 @@ jobs:
   deploy-preprod:
     needs: check-pre-release
     if: github.event_name == 'release' && needs.check-pre-release.outputs.is_prerelease == 'true'
-  uses: ./.github/workflows/release-solution.yml
+    uses: ./.github/workflows/release-solution.yml
     with:
       solution_name: ${{ needs.check-pre-release.outputs.solution_name }}
     secrets:
@@ -89,7 +89,7 @@ jobs:
   deploy-prod:
     needs: check-pre-release
     if: github.event_name == 'release' && needs.check-pre-release.outputs.is_prerelease != 'true'
-  uses: ./.github/workflows/release-solution.yml
+    uses: ./.github/workflows/release-solution.yml
     with:
       solution_name: ${{ needs.check-pre-release.outputs.solution_name }}
     secrets:
@@ -102,7 +102,7 @@ jobs:
 
   manual-deploy:
     if: github.event_name == 'workflow_dispatch' && inputs.solution_name != '<none>'
-  uses: ./.github/workflows/release-solution.yml
+    uses: ./.github/workflows/release-solution.yml
     with:
       solution_name: ${{ inputs.solution_name }}
     secrets:

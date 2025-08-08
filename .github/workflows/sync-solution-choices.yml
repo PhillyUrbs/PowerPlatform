@@ -5,8 +5,8 @@ on:
   push:
     paths:
       - solutions.json
-  - .github/workflows/export-solution-from-dev.yml
-  - .github/workflows/delete-solution.yml
+      - .github/workflows/export-solution-from-dev.yml
+      - .github/workflows/delete-solution.yml
 
 permissions:
   contents: write
