@@ -6,8 +6,6 @@ on:
     paths:
       - solutions.json
       - .github/workflows/export-and-branch-solution.yml
-      - .github/workflows/release-action-call.yml
-      - .github/workflows/release-solution-to-prod.yml
       - .github/workflows/delete-solution.yml
 
 permissions:
