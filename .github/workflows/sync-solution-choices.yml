@@ -1,22 +1,23 @@
 name: sync-solution-choices
 
 on:
-    workflow_dispatch: {}
-    push:
-        paths:
-        - solutions.json
-        - .github/workflows/export-and-branch-solution.yml
-        - .github/workflows/release-action-call.yml
-        - .github/workflows/release-solution-to-prod.yml
+  workflow_dispatch: {}
+  push:
+    paths:
+      - solutions.json
+      - .github/workflows/export-and-branch-solution.yml
+      - .github/workflows/release-action-call.yml
+      - .github/workflows/release-solution-to-prod.yml
 
 permissions:
-    contents: write
+  contents: write
 
 jobs:
   sync:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Sync dropdown options from solutions.json
         uses: actions/github-script@v7
         with:
@@ -45,6 +46,7 @@ jobs:
               core.setFailed('solutions.json must be a non-empty JSON array of strings');
               return;
             }
+
             // normalize, dedupe, sort
             names = [...new Set(names.map(s => String(s).trim()).filter(Boolean))].sort();
             if (names.length === 0) {
@@ -54,17 +56,20 @@ jobs:
 
             const updateFile = (rel) => {
               const p = path.join(process.env.GITHUB_WORKSPACE, rel);
-              if (!fs.existsSync(p)) { core.warning(`Workflow not found: ${rel}`); return false; }
+              if (!fs.existsSync(p)) {
+                core.warning(`Workflow not found: ${rel}`);
+                return false;
+              }
               let content = fs.readFileSync(p, 'utf8');
               const nl = content.includes('\r\n') ? '\r\n' : '\n';
               const lines = content.replace(/\r\n?/g, '\n').split('\n');
               const startIdx = lines.findIndex(l => /#\s*GENERATED-OPTIONS-START/.test(l));
-              const endIdx   = lines.findIndex(l => /#\s*GENERATED-OPTIONS-END/.test(l));
+              const endIdx = lines.findIndex(l => /#\s*GENERATED-OPTIONS-END/.test(l));
               if (startIdx < 0 || endIdx < 0 || endIdx <= startIdx) {
                 core.warning(`Markers not found or malformed in ${rel}; skipping`);
                 return false;
               }
-              const indent = (lines[startIdx].match(/^(\s*)/) || ['',''])[1];
+              const indent = (lines[startIdx].match(/^(\s*)/) || ['', ''])[1];
               const newBlock = names.map(n => `${indent}- ${n}`);
               const newLines = [
                 ...lines.slice(0, startIdx + 1),
@@ -83,9 +88,14 @@ jobs:
 
             let changed = false;
             for (const wf of workflowPaths) {
-              try { changed = updateFile(wf) || changed; } catch (e) { core.warning(`${wf}: ${e.message}`); }
+              try {
+                changed = updateFile(wf) || changed;
+              } catch (e) {
+                core.warning(`${wf}: ${e.message}`);
+              }
             }
-            core.setOutput('changed', changed);
+            core.setOutput('changed', changed)
+
       - name: Commit changes if any
         shell: pwsh
         run: |
@@ -97,4 +107,3 @@ jobs:
             git push
           } else {
             echo "No changes to commit"
-          }
