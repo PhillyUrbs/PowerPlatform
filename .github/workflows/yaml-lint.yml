@@ -24,6 +24,6 @@ jobs:
         with:
           config_file: .yamllint.yaml
           format: github
-          file_or_dir: |
-            .
+          file_or_dir: .
           strict: false
+
