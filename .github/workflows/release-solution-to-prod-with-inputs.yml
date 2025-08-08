@@ -4,21 +4,21 @@ name: release-solution-to-prod-reusable
 # upload the solution to the GitHub artifacts and deploy to the PROD environment
 on:
   workflow_call:
-    inputs: 
+    inputs:
       #Do Not change these values
       solution_name:
         description: 'The solution name.'
         type: string
-  # no default; must be provided by caller       
+      # no default; must be provided by caller
       solution_shipping_folder:
-        description: 'folder name for staging the exported solution *do not change*'        
+        description: 'folder name for staging the exported solution *do not change*'
         type: string
         default: out/ship/
       solution_outbound_folder:
         description: 'staging the unpacked solution folder before check-in *do not change*'
         type: string
         default: out/solutions/
-      solution_source_folder: 
+      solution_source_folder:
         description: 'folder name to be created and checked in *do not change*'
         type: string
         default: solutions/
@@ -49,98 +49,116 @@ jobs:
     env:
       RUNNER_DEBUG: 1
     steps:
-    - uses: actions/checkout@v4
-      with:
-        lfs: true
-    - name: Install Power Platform CLI
-      uses: microsoft/powerplatform-actions/actions-install@v1
-    - name: Debug solution path inputs
-      run: |
-        echo "inputs.solution_source_folder='${{ inputs.solution_source_folder }}'"
-        echo "inputs.solution_outbound_folder='${{ inputs.solution_outbound_folder }}'"
-        echo "inputs.solution_name='${{ inputs.solution_name }}'"
-        echo "Computed solution-folder='${{ inputs.solution_source_folder }}${{ inputs.solution_name }}'"
-        echo "Listing repository root:" && dir
-        echo "Listing solution source folder:" && dir "${{ inputs.solution_source_folder }}${{ inputs.solution_name }}" || echo "Folder not found"
-    - name: Validate build environment secrets
-      shell: bash
-      run: |
-        fail=0
-        check_secret() { name=$1; val=$2; if [ -z "$val" ] || [ "$val" = "" ]; then echo "Missing or empty secret: $name" >&2; fail=1; else echo "$name present (length >0)"; fi; }
-        check_secret BUILD_ENVIRONMENT_URL "${{ secrets.BUILD_ENVIRONMENT_URL }}"
-        check_secret CLIENT_ID "${{ secrets.CLIENT_ID }}"
-        check_secret TENANT_ID "${{ secrets.TENANT_ID }}"
-        check_secret envSecret "${{ secrets.envSecret }}"
-        if [ $fail -eq 1 ]; then echo "One or more required secrets not set." >&2; exit 1; fi
-    - name: Pack Solution
-      uses: microsoft/powerplatform-actions/pack-solution@v1
-      with:
-        solution-folder: ${{ inputs.solution_source_folder }}${{ inputs.solution_name }}
-        solution-file: ${{ inputs.solution_outbound_folder }}${{ inputs.solution_name }}.zip
-        solution-type: Unmanaged
-    - name: Import solution as unmanaged to build env
-      uses: microsoft/powerplatform-actions/import-solution@v1
-      with:
-        environment-url: ${{ secrets.BUILD_ENVIRONMENT_URL }}
-        app-id: ${{ secrets.CLIENT_ID }}
-        client-secret: ${{ secrets.envSecret }}
-        tenant-id: ${{ secrets.TENANT_ID }}
-        solution-file: ${{ inputs.solution_outbound_folder }}${{ inputs.solution_name }}.zip
-        force-overwrite: true
-        publish-changes: true
-    - name: Export solution as managed
-      uses: microsoft/powerplatform-actions/export-solution@v1
-      with:
-        environment-url: ${{ secrets.BUILD_ENVIRONMENT_URL }}
-        app-id: ${{ secrets.CLIENT_ID }}
-        client-secret: ${{ secrets.envSecret }} 
-        tenant-id: ${{ secrets.TENANT_ID }}
-        solution-name: ${{ inputs.solution_name }}
-        managed: true
-        solution-output-file: ${{ inputs.solution_shipping_folder }}${{ inputs.solution_name }}_managed.zip
-    - name: Upload the ready to ship solution to GH artifact store
-      uses: actions/upload-artifact@v4
-      with:
-        name: managedSolutions
-        path: ${{ inputs.solution_shipping_folder }}
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Install Power Platform CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+      - name: Debug solution path inputs
+        run: |
+          echo "inputs.solution_source_folder='${{ inputs.solution_source_folder }}'"
+          echo "inputs.solution_outbound_folder='${{ inputs.solution_outbound_folder }}'"
+          echo "inputs.solution_name='${{ inputs.solution_name }}'"
+          echo "Computed solution-folder='${{ inputs.solution_source_folder }}${{ inputs.solution_name }}'"
+          echo "Listing repository root:" && dir
+          echo "Listing solution source folder:" && dir "${{ inputs.solution_source_folder }}${{ inputs.solution_name }}" || echo "Folder not found"
+      - name: Validate build environment secrets
+        shell: bash
+        run: |
+          fail=0
+          check_secret() {
+            name=$1
+            val=$2
+            if [ -z "$val" ] || [ "$val" = "" ]; then
+              echo "Missing or empty secret: $name" >&2
+              fail=1
+            else
+              echo "$name present (length >0)"
+            fi
+          }
+          check_secret BUILD_ENVIRONMENT_URL "${{ secrets.BUILD_ENVIRONMENT_URL }}"
+          check_secret CLIENT_ID "${{ secrets.CLIENT_ID }}"
+          check_secret TENANT_ID "${{ secrets.TENANT_ID }}"
+          check_secret envSecret "${{ secrets.envSecret }}"
+          if [ $fail -eq 1 ]; then echo "One or more required secrets not set." >&2; exit 1; fi
+      - name: Pack Solution
+        uses: microsoft/powerplatform-actions/pack-solution@v1
+        with:
+          solution-folder: ${{ inputs.solution_source_folder }}${{ inputs.solution_name }}
+          solution-file: ${{ inputs.solution_outbound_folder }}${{ inputs.solution_name }}.zip
+          solution-type: Unmanaged
+      - name: Import solution as unmanaged to build env
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: ${{ secrets.BUILD_ENVIRONMENT_URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.envSecret }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-file: ${{ inputs.solution_outbound_folder }}${{ inputs.solution_name }}.zip
+          force-overwrite: true
+          publish-changes: true
+      - name: Export solution as managed
+        uses: microsoft/powerplatform-actions/export-solution@v1
+        with:
+          environment-url: ${{ secrets.BUILD_ENVIRONMENT_URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.envSecret }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-name: ${{ inputs.solution_name }}
+          managed: true
+          solution-output-file: ${{ inputs.solution_shipping_folder }}${{ inputs.solution_name }}_managed.zip
+      - name: Upload the ready to ship solution to GH artifact store
+        uses: actions/upload-artifact@v4
+        with:
+          name: managedSolutions
+          path: ${{ inputs.solution_shipping_folder }}
 
   release-to-power-platform:
-    needs: [ convert-to-managed-solution ]
+    needs: [convert-to-managed-solution]
     runs-on: windows-latest
     env:
       RUNNER_DEBUG: 1
     steps:
-    - uses: actions/checkout@v4
-      with:
-        lfs: true
-    - name: Install Power Platform CLI
-      uses: microsoft/powerplatform-actions/actions-install@v1
-    - name: Fetch the ready to ship solution from GH artifact store
-      uses: actions/download-artifact@v5
-      with:
-        name: managedSolutions
-        path: ${{ inputs.solution_release_folder }}
-    - name: Debug downloaded artifacts
-      run: |
-        echo "Listing release folder: ${{ inputs.solution_release_folder }}" && dir "${{ inputs.solution_release_folder }}"
-    - name: Validate production environment secrets
-      if: always()
-      shell: bash
-      run: |
-        fail=0
-        check_secret() { name=$1; val=$2; if [ -z "$val" ] || [ "$val" = "" ]; then echo "Missing or empty secret: $name" >&2; fail=1; else echo "$name present (length >0)"; fi; }
-        check_secret PRODUCTION_ENVIRONMENT_URL "${{ secrets.PRODUCTION_ENVIRONMENT_URL }}"
-        check_secret CLIENT_ID "${{ secrets.CLIENT_ID }}"
-        check_secret TENANT_ID "${{ secrets.TENANT_ID }}"
-        check_secret envSecret "${{ secrets.envSecret }}"
-        if [ $fail -eq 1 ]; then echo "One or more required secrets for production not set." >&2; exit 1; fi
-    - name: Import solution to target env
-      uses: microsoft/powerplatform-actions/import-solution@v1
-      with:
-        environment-url: ${{ secrets.PRODUCTION_ENVIRONMENT_URL }}
-        app-id: ${{ secrets.CLIENT_ID }}
-        client-secret: ${{ secrets.envSecret }}
-        tenant-id: ${{ secrets.TENANT_ID }}
-        solution-file: ${{ inputs.solution_release_folder }}${{ inputs.solution_name }}_managed.zip
-        force-overwrite: true
-        publish-changes: true
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Install Power Platform CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+      - name: Fetch the ready to ship solution from GH artifact store
+        uses: actions/download-artifact@v5
+        with:
+          name: managedSolutions
+          path: ${{ inputs.solution_release_folder }}
+      - name: Debug downloaded artifacts
+        run: |
+          echo "Listing release folder: ${{ inputs.solution_release_folder }}" && dir "${{ inputs.solution_release_folder }}"
+      - name: Validate production environment secrets
+        if: always()
+        shell: bash
+        run: |
+          fail=0
+          check_secret() {
+            name=$1
+            val=$2
+            if [ -z "$val" ] || [ "$val" = "" ]; then
+              echo "Missing or empty secret: $name" >&2
+              fail=1
+            else
+              echo "$name present (length >0)"
+            fi
+          }
+          check_secret PRODUCTION_ENVIRONMENT_URL "${{ secrets.PRODUCTION_ENVIRONMENT_URL }}"
+          check_secret CLIENT_ID "${{ secrets.CLIENT_ID }}"
+          check_secret TENANT_ID "${{ secrets.TENANT_ID }}"
+          check_secret envSecret "${{ secrets.envSecret }}"
+          if [ $fail -eq 1 ]; then echo "One or more required secrets for production not set." >&2; exit 1; fi
+      - name: Import solution to target env
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: ${{ secrets.PRODUCTION_ENVIRONMENT_URL }}
+          app-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.envSecret }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          solution-file: ${{ inputs.solution_release_folder }}${{ inputs.solution_name }}_managed.zip
+          force-overwrite: true
+          publish-changes: true
