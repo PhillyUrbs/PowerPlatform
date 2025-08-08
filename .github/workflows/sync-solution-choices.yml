@@ -8,6 +8,7 @@ on:
       - .github/workflows/export-and-branch-solution.yml
       - .github/workflows/release-action-call.yml
       - .github/workflows/release-solution-to-prod.yml
+      - .github/workflows/delete-solution.yml
 
 permissions:
   contents: write
@@ -28,7 +29,8 @@ jobs:
             const workflowPaths = [
               '.github/workflows/export-and-branch-solution.yml',
               '.github/workflows/release-action-call.yml',
-              '.github/workflows/release-solution-to-prod.yml'
+              '.github/workflows/release-solution-to-prod.yml',
+              '.github/workflows/delete-solution.yml'
             ];
 
             if (!fs.existsSync(jsonPath)) {
