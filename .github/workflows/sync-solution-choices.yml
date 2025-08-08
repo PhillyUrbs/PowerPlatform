@@ -44,15 +44,16 @@ jobs:
               core.setFailed(`Failed to parse solutions.json: ${e.message}`);
               return;
             }
-            if (!Array.isArray(names) || names.length === 0) {
-              core.setFailed('solutions.json must be a non-empty JSON array of strings');
+            if (!Array.isArray(names)) {
+              core.setFailed('solutions.json must be a JSON array of strings');
               return;
             }
 
             // normalize, dedupe, sort
             names = [...new Set(names.map(s => String(s).trim()).filter(Boolean))].sort();
             if (names.length === 0) {
-              core.setFailed('No valid solution names after normalization');
+              core.warning('solutions.json is empty after normalization; skipping dropdown sync to avoid empty choice lists');
+              core.setOutput('changed', false);
               return;
             }
 
