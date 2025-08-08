@@ -31,8 +31,8 @@ jobs:
       - name: Get release information
         id: get_release
         run: |
-          echo "Event name: $GITHUB_EVENT_NAME"  
-          echo "Raw prerelease value (release.prerelease):"  
+          echo "Event name: $GITHUB_EVENT_NAME"
+          echo "Raw prerelease value (release.prerelease):"
           jq '.release.prerelease' "$GITHUB_EVENT_PATH" || true
           PRERELEASE=$(jq -r '.release.prerelease // false' "$GITHUB_EVENT_PATH")
           echo "Resolved prerelease=$PRERELEASE"
