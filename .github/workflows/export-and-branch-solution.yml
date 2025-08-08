@@ -106,13 +106,13 @@ jobs:
           return String(changed);
       env:
         SOLUTION_NAME: ${{ github.event.inputs.solution_name }}
-
+        
     - name: Open PR to add solution to solutions.json (if needed)
       if: ${{ steps.ensure_json.outputs.result == 'true' }}
       uses: peter-evans/create-pull-request@v6
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-  base: main
+        base: main
         commit-message: "chore: add ${{ github.event.inputs.solution_name }} to solutions.json"
         title: "chore: add ${{ github.event.inputs.solution_name }} to solutions.json"
         body: |

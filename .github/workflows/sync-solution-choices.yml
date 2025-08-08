@@ -1,16 +1,16 @@
 name: sync-solution-choices
 
 on:
-  workflow_dispatch: {}
-  push:
-    paths:
-      - solutions.json
-      - .github/workflows/export-and-branch-solution.yml
-      - .github/workflows/release-action-call.yml
-  - .github/workflows/release-solution-to-prod.yml
+    workflow_dispatch: {}
+    push:
+        paths:
+        - solutions.json
+        - .github/workflows/export-and-branch-solution.yml
+        - .github/workflows/release-action-call.yml
+        - .github/workflows/release-solution-to-prod.yml
 
 permissions:
-  contents: write
+    contents: write
 
 jobs:
   sync:
