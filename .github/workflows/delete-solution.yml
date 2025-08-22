@@ -20,7 +20,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Validate selection is not placeholder
         if: ${{ github.event.inputs.solution_name_choice == '<none>' }}
