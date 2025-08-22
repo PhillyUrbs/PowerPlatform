@@ -176,7 +176,7 @@ jobs:
 
       - name: Open PR to add solution to solutions.json (if needed)
         if: ${{ steps.ensure_json.outputs.result == 'true' }}
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: main

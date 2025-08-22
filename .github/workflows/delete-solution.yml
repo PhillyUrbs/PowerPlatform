@@ -76,7 +76,7 @@ jobs:
             core.setOutput('updated_json', String(changed));
 
       - name: Open PR to delete solution
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: main
