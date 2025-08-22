@@ -1,0 +1,31 @@
+name: actionlint
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**/*.yml'
+      - '.github/workflows/**/*.yaml'
+  push:
+    branches:
+      - main
+      - multisolution-support
+    paths:
+      - '.github/workflows/**/*.yml'
+      - '.github/workflows/**/*.yaml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actionlint-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run pre-commit (yamllint + actionlint)
+        uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: --all-files

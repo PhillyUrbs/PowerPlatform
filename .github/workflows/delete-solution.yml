@@ -1,0 +1,89 @@
+name: delete-solution
+
+on:
+  workflow_dispatch:
+    inputs:
+      solution_name_choice:
+        description: 'Select a solution name to delete'
+        required: true
+        type: choice
+        options:
+          # GENERATED-OPTIONS-START
+          - ALMLab
+          # GENERATED-OPTIONS-END
+
+permissions:
+  contents: write
+
+jobs:
+  delete:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate selection is not placeholder
+        if: ${{ github.event.inputs.solution_name_choice == '<none>' }}
+        shell: bash
+        run: |
+          echo "You must select a real solution name, not <none>." >&2
+          exit 1
+
+      - name: Delete solution folder and update solutions.json
+        id: delete_and_update
+        uses: actions/github-script@v7
+        env:
+          SOLUTION_NAME: ${{ github.event.inputs.solution_name_choice }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const core = require('@actions/core');
+            const sol = process.env.SOLUTION_NAME;
+            if (!sol || !/^[^\\/]+$/.test(sol)) {
+              core.setFailed(`Invalid solution name: ${sol}`);
+              return;
+            }
+            const root = process.env.GITHUB_WORKSPACE;
+            const dir = path.join(root, 'solutions', sol);
+            if (fs.existsSync(dir)) {
+              core.info(`Deleting directory: ${dir}`);
+              fs.rmSync(dir, { recursive: true, force: true });
+            } else {
+              core.warning(`Directory does not exist: ${dir}`);
+            }
+
+            // Update solutions.json by removing the name if present
+            const jsonPath = path.join(root, 'solutions.json');
+            let changed = false;
+            if (fs.existsSync(jsonPath)) {
+              try {
+                const arr = JSON.parse(fs.readFileSync(jsonPath, 'utf8')) || [];
+                if (Array.isArray(arr)) {
+                  const next = Array.from(new Set(arr.map(s => String(s).trim()).filter(Boolean)));
+                  const before = next.length;
+                  const filtered = next.filter(n => n !== sol).sort();
+                  if (filtered.length !== before) {
+                    fs.writeFileSync(jsonPath, JSON.stringify(filtered, null, 2) + '\n');
+                    changed = true;
+                    core.info(`Removed '${sol}' from solutions.json`);
+                  }
+                }
+              } catch (e) {
+                core.warning(`Failed to update solutions.json: ${e.message}`);
+              }
+            }
+            core.setOutput('updated_json', String(changed));
+
+      - name: Open PR to delete solution
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          commit-message: "chore: delete solution ${{ github.event.inputs.solution_name_choice }}"
+          title: "chore: delete solution ${{ github.event.inputs.solution_name_choice }}"
+          body: |
+            This PR deletes the backed-up solution `${{ github.event.inputs.solution_name_choice }}`
+            from the `solutions/` folder and updates `solutions.json` accordingly.
+          branch: chore/delete-solution-${{ github.event.inputs.solution_name_choice }}
+          delete-branch: true

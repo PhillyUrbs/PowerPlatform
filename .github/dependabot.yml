@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "github-actions"
-    directory: "/" # root of your repo
+    directory: "/"  # root of your repo
     schedule:
       interval: "weekly"  # or "daily", "monthly"
       day: sunday
