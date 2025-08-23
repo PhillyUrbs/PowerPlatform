@@ -1,5 +1,11 @@
-# NOTE: Older actionlint versions (pre support for 'workflows' scope) raise an error on the permission below.
-# CI invocation ignores just that specific diagnostic; leave this comment until upstream adds support.
+# NOTE:
+# This repository previously attempted to request the newer `workflows` permission (to allow
+# committing changes to other workflow files). Your GitHub environment rejected the key with:
+#   "Invalid workflow file: Unexpected value 'workflows'"
+# That indicates the platform version in use does not yet recognize the `workflows` permission key.
+# We fall back to only `contents: write`. To ensure commits to other workflow files succeed on
+# older/stable GitHub environments, supply a classic PAT (scopes: repo, workflow) as a secret
+# (e.g. `WORKFLOW_UPDATE_TOKEN`) and this workflow will use it for checkout/push.
 name: Sync Solution Choices (Auto)
 
 on:
@@ -9,21 +15,35 @@ on:
       - solutions.json
       - .github/workflows/export-solution-from-dev.yml
       - .github/workflows/delete-solution.yml
-
-# permissions:
-#   contents: write     -> required to commit updated dropdown option lists back to the repo.
-#   workflows: write    -> required because this workflow may modify OTHER workflow files when it regenerates
-#                          the option blocks between GENERATED-OPTIONS markers. Without this scope GitHub rejects
-#                          commits that touch files under .github/workflows/ with a 403 (even if contents: write is set).
+      - .github/workflows/release-action-call.yml
+      - .github/workflows/release-solution.yml
 permissions:
   contents: write
-  workflows: write
 
 jobs:
   sync:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - name: Resolve auth token (PAT optional)
+        id: auth
+        shell: bash
+        env:
+          PAT: ${{ secrets.WORKFLOW_UPDATE_TOKEN }}
+        run: |
+          if [ -n "${PAT}" ]; then
+            echo "Using provided PAT for checkout/push" >&2
+            echo "token=${PAT}" >> "$GITHUB_OUTPUT"
+          else
+            echo "PAT not provided; falling back to GITHUB_TOKEN" >&2
+            echo "token=${GITHUB_TOKEN}" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Checkout (uses PAT if provided)
+        uses: actions/checkout@v5
+        with:
+          # Provide a classic PAT secret (WORKFLOW_UPDATE_TOKEN) with repo + workflow scopes to
+          # allow committing changes to .github/workflows/*. If omitted, default token is used and
+          # pushes that modify other workflow files may be rejected on some GitHub variants.
+          token: ${{ steps.auth.outputs.token }}
 
       - name: Sync dropdown options from solutions.json
         uses: actions/github-script@v7
@@ -36,7 +56,6 @@ jobs:
               '.github/workflows/export-solution-from-dev.yml',
               '.github/workflows/release-action-call.yml',
               '.github/workflows/release-solution.yml',
-              '.github/workflows/release-solution-manual.yml',
               '.github/workflows/delete-solution.yml'
             ];
 
