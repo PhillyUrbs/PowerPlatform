@@ -6,19 +6,21 @@ This repo keeps your solutions as source (unpacked) under `solutions/` and autom
 
 ## Status
 
-![yaml-lint](https://github.com/PhillyUrbs/PowerPlatform/actions/workflows/yaml-lint.yml/badge.svg)
-![actionlint](https://github.com/PhillyUrbs/PowerPlatform/actions/workflows/actionlint.yml/badge.svg)
+![lint-yaml](https://github.com/PhillyUrbs/PowerPlatform/actions/workflows/lint-yaml.yml/badge.svg)
+![lint-action](https://github.com/PhillyUrbs/PowerPlatform/actions/workflows/lint-action.yml/badge.svg)
 
 ## Repository layout
 
 - `solutions/` — Unpacked solution folders tracked in git (e.g., `solutions/ALMLab`).
 - `solutions.json` — Source of truth list of solution names used to populate workflow dropdowns.
 - `scripts/` — Utility scripts for local maintenance (e.g., syncing dropdown options).
--- `.github/workflows/` — CI workflows:
+- `.github/workflows/` — CI workflows:
   - `export-solution-from-dev.yml` — Export from DEV, unpack, and open a PR with changes.
   - `release-solution.yml` / `release-action-call.yml` — Release pipeline (reusable + orchestrator).
   - `sync-solution-choices.yml` — Keeps dropdown options in workflows in sync with `solutions.json`.
   - `delete-solution.yml` — Deletes a backed-up solution folder from `solutions/` and opens a PR with the removal.
+  - `lint-yaml.yml` — Runs yamllint over all YAML.
+  - `lint-action.yml` — Runs actionlint to validate GitHub Actions workflows.
 - `.yamllint.yaml` — YAML lint rules (2-space indents, max line length 160, final newline, etc.).
 - `.editorconfig` — Enforces editor settings (indentation, final newline, trimming) across contributors.
 - `.pre-commit-config.yaml` — Local hooks (yamllint, actionlint) to catch issues before committing.
@@ -132,10 +134,10 @@ Safety: Runs in a PR; you review and merge the deletion.
 
 ### Linting workflows
 
-- `yaml-lint` — Runs yamllint on all `*.yml`/`*.yaml` on PRs and pushes.
-- `actionlint` — Validates GitHub Actions YAML, expressions, and shell steps on PRs and pushes.
+- `lint-yaml` (`lint-yaml.yml`) — Runs yamllint on all `*.yml`/`*.yaml` on PRs and pushes.
+- `lint-action` (`lint-action.yml`) — Validates GitHub Actions YAML, expressions, and shell steps on PRs and pushes.
 
-Both jobs use concurrency to cancel stale runs on the same branch.
+Both workflows use concurrency to cancel stale runs on the same branch.
 
 ## Local development
 

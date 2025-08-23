@@ -28,13 +28,13 @@ Authoring patterns to follow
   - `on.push.paths` and `workflowPaths` within the script.
 - To add a new solution, prefer editing `solutions.json` and let the sync workflow regenerate dropdowns, rather than hand-editing lists.
 
-YAML conventions (linted in CI)
-- 2-space indentation, indent sequences; max line length 160; final newline; no trailing spaces.
-- Use block scalars for long text (e.g., PR bodies) to respect the 160-char rule.
-- Workflows are linted by `yaml-lint` and `actionlint` (both run on PRs/push with concurrency to cancel stale runs).
+ YAML conventions (linted in CI)
+ - 2-space indentation, indent sequences; max line length 160; final newline; no trailing spaces.
+ - Use block scalars for long text (e.g., PR bodies) to respect the 160-char rule.
+ - Workflows are linted by `lint-yaml.yml` (yamllint) and `lint-action.yml` (actionlint) on push/PR.
 
-Examples
-- Marker block to keep intact:
+ Examples
+ - Marker block to keep intact:
   ```yaml
   options:
     # GENERATED-OPTIONS-START
