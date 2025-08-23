@@ -1,4 +1,5 @@
-# actionlint: disable=all  # Older actionlint versions (pre support for 'workflows' scope) raise an error; CI runs latest separately.
+# NOTE: Older actionlint versions (pre support for 'workflows' scope) raise an error on the permission below.
+# CI invocation ignores just that specific diagnostic; leave this comment until upstream adds support.
 name: Sync Solution Choices (Auto)
 
 on:
