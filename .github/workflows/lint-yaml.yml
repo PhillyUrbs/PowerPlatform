@@ -1,4 +1,4 @@
-name: yaml-lint
+name: lint-yaml
 
 on:
   pull_request:
