@@ -1,0 +1,43 @@
+name: Verify repository indexes
+
+on:
+  pull_request:
+    paths:
+      - 'solutions.json'
+      - '.github/workflows/**'
+      - 'scripts/**'
+      - 'README.md'
+      - '.pre-commit-config.yaml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'solutions.json'
+      - '.github/workflows/**'
+      - 'scripts/**'
+      - 'README.md'
+      - '.pre-commit-config.yaml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-indexes-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install jq (required by build-manifest)
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Regenerate manifest
+        run: bash scripts/build-manifest.sh
+      - name: Check for drift
+        run: |
+          if ! git diff --quiet repo-manifest.json; then
+            echo 'repo-manifest.json is out of date. Run: bash scripts/reindex.sh and commit the result.' >&2
+            git --no-pager diff --name-only
+            exit 1
+          fi
+          echo 'Indexes up to date.'

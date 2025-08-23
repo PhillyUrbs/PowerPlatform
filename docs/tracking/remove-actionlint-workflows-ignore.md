@@ -59,6 +59,16 @@ Once actionlint adds native support for the `workflows` permission, these workar
 - [ ] CI green
 - [ ] PR merged
 
+## Automation
+
+A scheduled workflow `monitor-actionlint-permission.yml` runs weekly (and on manual dispatch) to probe the latest
+actionlint without the ignore flag. When the diagnostic about the unknown `workflows` permission disappears, it
+automatically opens (or updates) an issue titled:
+
+`chore: remove actionlint workflows permission workaround`
+
+That issue's body restates the clean-up steps so the workaround can be removed promptly.
+
 ## References
 
 - `./.github/workflows/lint-action.yml`

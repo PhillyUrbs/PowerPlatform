@@ -1,3 +1,0 @@
-# Temporary ignore for workflow requiring 'workflows' permission scope which current released actionlint
-# (<=1.7.7) does not yet recognize. Remove this ignore once actionlint adds the new scope.
-.github/workflows/sync-solution-choices.yml

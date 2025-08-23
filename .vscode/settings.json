@@ -1,0 +1,11 @@
+{
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.yml"
+  },
+  "search.exclude": {
+    "solutions/**": true
+  },
+  "files.watcherExclude": {
+    "solutions/**": true
+  }
+}

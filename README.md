@@ -21,12 +21,12 @@ This repo keeps your solutions as source (unpacked) under `solutions/` and autom
   - `delete-solution.yml` — Deletes a backed-up solution folder from `solutions/` and opens a PR with the removal.
   - `lint-yaml.yml` — Runs yamllint over all YAML.
   - `lint-action.yml` — Runs actionlint to validate GitHub Actions workflows.
+  - `verify-indexes.yml` — Ensures `repo-manifest.json` is current.
+  - `monitor-actionlint-permission.yml` — Probes for upstream actionlint support of the `workflows` permission.
 - `.yamllint.yaml` — YAML lint rules (2-space indents, max line length 160, final newline, etc.).
 - `.editorconfig` — Enforces editor settings (indentation, final newline, trimming) across contributors.
-- `.pre-commit-config.yaml` — Local hooks (yamllint, actionlint) to catch issues before committing.
+- `.pre-commit-config.yaml` — Local hook (indexing only by default now).
 - `LICENSE` — License for this repository.
-
-Note: `scripts/sync-solution-choices.ps1` is a local helper; the repo primarily uses a GitHub Actions step (`actions/github-script`) to perform the same sync server-side.
 
 ## Required GitHub secrets
 
@@ -147,9 +147,9 @@ Both workflows use concurrency to cancel stale runs on the same branch.
 - Editors that support EditorConfig will pick up `.editorconfig` automatically.
 - Optional: set an editor ruler at column 160 to match `.yamllint.yaml`.
 
-### Pre-commit hooks (optional, recommended)
+### Pre-commit hook (optional – indexing only)
 
-Use pre-commit to run yamllint/actionlint locally before committing.
+Use pre-commit (optional) only to keep the lightweight indexes fresh; linting now runs solely in CI (`lint-yaml.yml`, `lint-action.yml`).
 
 Recommended (pipx, keeps Python tools isolated):
 
@@ -158,12 +158,12 @@ Recommended (pipx, keeps Python tools isolated):
 python -m pip install --user pipx
 python -m pipx ensurepath
 
-# Install and enable hooks
+# Install and enable hook (indexing only)
 pipx install pre-commit
 pre-commit install
 
-# Run on the entire repo
-pre-commit run --all-files
+# Run the indexing hook explicitly (or just commit; it triggers automatically on staged changes)
+pre-commit run reindex --all-files
 ```
 
 Alternative (regular pip):
@@ -171,9 +171,66 @@ Alternative (regular pip):
 ```bash
 python -m pip install --user pre-commit
 pre-commit install
+pre-commit run reindex --all-files
+```
+
+### Indexing (excluding solution contents)
+
+For faster navigation and to keep AI/context tools lightweight we maintain optional indexes that skip the heavy `solutions/` tree:
+
+```bash
+# One-time prerequisites (optional): install universal-ctags (ctags index) and jq (robust JSON parsing).
+# Both are optional; without jq a fallback parser is used for `solutions.json`.
+# With Chocolatey:
+#   choco install universal-ctags jq -y
+# With winget:
+#   winget install -e --id UniversalCtags.Ctags
+#   winget install -e --id jqlang.jq
+# Or install manually; if jq is absent the manifest still builds best-effort.
+
+# Generate / refresh indexes (auto-stages repo-manifest.json if it changes)
+bash scripts/reindex.sh
+
+# Files produced:
+#  .file-index         -> tracked file list excluding solutions/
+#  .tags               -> ctags symbols (YAML/XML) excluding solutions/
+#  repo-manifest.json  -> summary of workflows + solution names
+```
+
+VS Code Task: Run "Reindex (exclude solutions/)" from the task palette.
+
+Automation:
+ 
+- Pre-commit hook (if you install with `pre-commit install`) rebuilds indexes and updates `repo-manifest.json` when needed.
+- `verify-indexes.yml` CI workflow regenerates the manifest and fails if it is stale (prompting you to run the reindex script locally).
+
+Note: `.file-index` and `.tags` are ignored (local helpers only); only `repo-manifest.json` is tracked & verified.
+
+The repository’s pre-commit configuration now only maintains the lightweight indexes (`repo-manifest.json`, `.file-index`, optional `.tags`). All YAML and workflow linting happens in CI.
+
+To opt back into local linting, add before the local repo block in `.pre-commit-config.yaml`:
+
+```yaml
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        args: ["-c", ".yamllint.yaml"]
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
+    hooks:
+      - id: actionlint
+        args: ["-ignore", "unknown permission scope \"workflows\""]
+```
+
+Then run:
+
+```bash
+pre-commit clean
+pre-commit install
 pre-commit run --all-files
 ```
 
 ## License
 
-This project is licensed under the terms of the license found in `LICENSE`.
+MIT

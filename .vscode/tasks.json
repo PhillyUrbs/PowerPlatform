@@ -1,0 +1,11 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Reindex (exclude solutions/)",
+      "type": "shell",
+      "command": "bash scripts/reindex.sh",
+      "problemMatcher": []
+    }
+  ]
+}

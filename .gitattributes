@@ -1,0 +1,7 @@
+# Enforce consistent LF endings for YAML and shell scripts (yamllint expects \n)
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.sh   text eol=lf
+
+# Leave PowerShell scripts default (Windows-friendly) unless needed:
+# *.ps1 text eol=crlf

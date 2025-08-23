@@ -1,1 +1,5 @@
+# Ephemeral or locally regenerated indexes (manifest is tracked; others ignored)
+.tags
+.file-index
+
 *.key
