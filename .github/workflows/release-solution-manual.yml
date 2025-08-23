@@ -59,7 +59,7 @@ jobs:
           echo "You must select a real solution name, not <none>." >&2
           exit 1
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           lfs: true
 
@@ -108,7 +108,7 @@ jobs:
       RUNNER_DEBUG: 1
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           lfs: true
 
