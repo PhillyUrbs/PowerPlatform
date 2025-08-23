@@ -25,7 +25,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - name: actionlint (latest)
+        # Download & run the latest released actionlint (via upstream helper script) so it understands
+        # newer workflow schema features (e.g., 'workflows' permission). We intentionally do NOT pin
+        # to a specific version here to pick up rule updates automatically. If reproducibility becomes
+        # critical, replace this with a curl of a fixed tag asset.
+        run: |
+          bash <(curl -s https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint -color
       - name: Run pre-commit (yamllint + actionlint)
         uses: pre-commit/action@v3.0.1
         with:
           extra_args: --all-files
+        env:
+          # Skip actionlint inside pre-commit: we invoke a fresher standalone actionlint above to avoid
+          # duplicate work and outdated schema knowledge. Other hooks (yamllint, etc.) still run.
+          SKIP: actionlint

@@ -1,3 +1,4 @@
+# actionlint: disable=all  # Older actionlint versions (pre support for 'workflows' scope) raise an error; CI runs latest separately.
 name: Sync Solution Choices (Auto)
 
 on:
@@ -8,8 +9,14 @@ on:
       - .github/workflows/export-solution-from-dev.yml
       - .github/workflows/delete-solution.yml
 
+# permissions:
+#   contents: write     -> required to commit updated dropdown option lists back to the repo.
+#   workflows: write    -> required because this workflow may modify OTHER workflow files when it regenerates
+#                          the option blocks between GENERATED-OPTIONS markers. Without this scope GitHub rejects
+#                          commits that touch files under .github/workflows/ with a 403 (even if contents: write is set).
 permissions:
   contents: write
+  workflows: write
 
 jobs:
   sync:
