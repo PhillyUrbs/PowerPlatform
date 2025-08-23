@@ -1,4 +1,4 @@
-name: delete-solution
+name: Delete Solution
 
 on:
   workflow_dispatch:

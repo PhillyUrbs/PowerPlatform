@@ -1,4 +1,4 @@
-name: lint-actions
+name: Linting (actions)
 
 on:
   pull_request:

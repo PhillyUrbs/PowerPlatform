@@ -1,4 +1,4 @@
-name: sync-solution-choices
+name: Sync Solution Choices (Auto)
 
 on:
   workflow_dispatch: {}

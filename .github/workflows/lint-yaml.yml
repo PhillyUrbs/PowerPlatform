@@ -1,4 +1,4 @@
-name: lint-yaml
+name: Linting (yaml)
 
 on:
   pull_request:
