@@ -1,11 +1,13 @@
 # NOTE:
-# This repository previously attempted to request the newer `workflows` permission (to allow
-# committing changes to other workflow files). Your GitHub environment rejected the key with:
+# This repository previously attempted to request the newer `workflows` permission
+# (to allow committing changes to other workflow files). Your GitHub environment
+# rejected the key with:
 #   "Invalid workflow file: Unexpected value 'workflows'"
-# That indicates the platform version in use does not yet recognize the `workflows` permission key.
-# We fall back to only `contents: write`. To ensure commits to other workflow files succeed on
-# older/stable GitHub environments, supply a classic PAT (scopes: repo, workflow) as a secret
-# (e.g. `WORKFLOW_UPDATE_TOKEN`) and this workflow will use it for checkout/push.
+# That indicates the platform version does not yet recognize the `workflows` scope.
+# We fall back to only `contents: write`.
+# To commit changes to other workflow files on older/stable variants, supply a
+# classic PAT (scopes: repo, workflow) as secret `WORKFLOW_UPDATE_TOKEN` and this
+# workflow will use it for checkout/push.
 name: Sync Solution Choices (Auto)
 
 on:
@@ -40,9 +42,8 @@ jobs:
       - name: Checkout (uses PAT if provided)
         uses: actions/checkout@v5
         with:
-          # Provide a classic PAT secret (WORKFLOW_UPDATE_TOKEN) with repo + workflow scopes to
-          # allow committing changes to .github/workflows/*. If omitted, default token is used and
-          # pushes that modify other workflow files may be rejected on some GitHub variants.
+          # Provide PAT secret WORKFLOW_UPDATE_TOKEN (scopes: repo, workflow) to enable
+          # committing changes to workflow files. Without it, default token may be rejected.
           token: ${{ steps.auth.outputs.token }}
 
       - name: Sync dropdown options from solutions.json
@@ -81,7 +82,7 @@ jobs:
             if (names.length === 0) {
               placeholderMode = true;
               names = ['<none>'];
-              core.info('solutions.json is empty; inserting placeholder <none> into dropdowns.');
+              core.info('solutions.json empty; inserting placeholder <none> into dropdowns.');
             }
 
             const updateFile = (rel) => {
@@ -164,7 +165,7 @@ jobs:
           fi
             # Detect permission issues (403 / denied)
           if echo "$output" | grep -Eqi '(^|[^0-9])403([^0-9]|$)|denied|permission'; then
-            echo '::warning::Push appears to have failed due to permissions (possibly updating workflow files). If this persists, create a classic PAT with repo + workflow scopes and add it as secret WORKFLOW_UPDATE_TOKEN.'
+            echo '::warning::Push failed (permission?). Add WORKFLOW_UPDATE_TOKEN (classic PAT repo+workflow) if needed.'
           else
             echo 'Push output did not indicate a permission issue.'
           fi
