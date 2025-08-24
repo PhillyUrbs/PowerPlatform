@@ -26,19 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: actionlint (latest)
-        # Download & run the latest released actionlint. As of current release it does not yet know the
-        # new 'workflows' permission scope, so we ignore just that diagnostic via -ignore. Remove the
-        # -ignore flag once upstream adds support (then failing here will remind us to clean this up).
-        # We intentionally do NOT pin the version to pick up new rules automatically.
+        # Download & run the latest released actionlint (un-pinned to pick up new rules automatically).
         run: |
           bash <(curl -s https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
-          # Ignore ONLY the unknown scope error for 'workflows'. Pattern kept specific to avoid hiding others.
-          ./actionlint -color -ignore 'unknown permission scope "workflows"'
-      - name: Run pre-commit (yamllint + actionlint)
-        uses: pre-commit/action@v3.0.1
-        with:
-          extra_args: --all-files
-        env:
-          # Skip actionlint inside pre-commit: we invoke a fresher standalone actionlint above to avoid
-          # duplicate work and outdated schema knowledge. Other hooks (yamllint, etc.) still run.
-          SKIP: actionlint
+          ./actionlint -color

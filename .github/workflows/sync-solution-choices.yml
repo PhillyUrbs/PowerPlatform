@@ -128,13 +128,43 @@ jobs:
 
       - name: Commit changes if any
         shell: pwsh
+        id: commit
+        continue-on-error: true
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
           if (-not (git diff --quiet)) {
             git add .
             git commit -m "chore: sync solution dropdown options from solutions.json"
-            git push
+            try {
+              $pushOutput = git push 2>&1
+              "push_output<<EOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+              $pushOutput | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+              "EOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            } catch {
+              $msg = $_.Exception.Message
+              "push_output<<EOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+              $msg | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+              "EOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+              throw
+            }
           } else {
             echo "No changes to commit"
+            echo "push_output=No changes" >> $env:GITHUB_OUTPUT
           }
+
+      - name: Check push result / guidance
+        if: always()
+        shell: bash
+        run: |
+          status='${{ steps.commit.outcome }}'
+          output='${{ steps.commit.outputs.push_output }}'
+          if [ "$status" != 'success' ]; then
+            echo "Commit/push step outcome: $status" >&2
+          fi
+            # Detect permission issues (403 / denied)
+          if echo "$output" | grep -Eqi '(^|[^0-9])403([^0-9]|$)|denied|permission'; then
+            echo '::warning::Push appears to have failed due to permissions (possibly updating workflow files). If this persists, create a classic PAT with repo + workflow scopes and add it as secret WORKFLOW_UPDATE_TOKEN.'
+          else
+            echo 'Push output did not indicate a permission issue.'
+          fi

@@ -2,7 +2,7 @@
 
 Power Platform ALM repository for exporting, unpacking, versioning, and releasing solutions with GitHub Actions.
 
-This repo keeps your solutions as source (unpacked) under `solutions/` and automates common tasks like exporting from DEV, creating PRs, maintaining workflow dropdowns, and deleting backed-up solutions when needed.
+This repo keeps your solutions as source (unpacked) under `solutions/` and automates exporting from DEV, branching via PR, releasing managed versions, syncing workflow dropdowns, and optionally pruning old solution folders.
 
 ## Status
 
@@ -15,18 +15,15 @@ This repo keeps your solutions as source (unpacked) under `solutions/` and autom
 - `solutions.json` — Source of truth list of solution names used to populate workflow dropdowns.
 - `scripts/` — Utility scripts for local maintenance (e.g., syncing dropdown options).
 - `.github/workflows/` — CI workflows:
-  - `export-solution-from-dev.yml` — Export from DEV, unpack, and open a PR with changes.
-  - `release-solution.yml` / `release-action-call.yml` — Release pipeline (reusable + orchestrator).
-  - `sync-solution-choices.yml` — Keeps dropdown options in workflows in sync with `solutions.json`.
-  - `delete-solution.yml` — Deletes a backed-up solution folder from `solutions/` and opens a PR with the removal.
-  - `lint-yaml.yml` — Runs yamllint over all YAML.
-  - `lint-action.yml` — Runs actionlint to validate GitHub Actions workflows.
-  - `verify-indexes.yml` — Ensures `repo-manifest.json` is current.
-  - `monitor-actionlint-permission.yml` — Probes for upstream actionlint support of the `workflows` permission.
-- `.yamllint.yaml` — YAML lint rules (2-space indents, max line length 160, final newline, etc.).
-- `.editorconfig` — Enforces editor settings (indentation, final newline, trimming) across contributors.
-- `.pre-commit-config.yaml` — Local hook (indexing only by default now).
-- `LICENSE` — License for this repository.
+  - `export-solution-from-dev.yml`
+  - `release-solution.yml` (reusable) & `release-action-call.yml` (orchestrator)
+  - `sync-solution-choices.yml`
+  - `delete-solution.yml`
+  - `lint-yaml.yml` / `lint-action.yml`
+- `.yamllint.yaml` — YAML lint rules (2-space indents, max 160 chars).
+- `.editorconfig` — Consistent whitespace & newlines.
+- `scripts/generate-manifest.sh` — Optional helper to output a lightweight `repo-manifest.json` (ignored by git) listing solution names + workflow files.
+- `LICENSE`
 
 ## Required GitHub secrets
 
@@ -134,103 +131,50 @@ Safety: Runs in a PR; you review and merge the deletion.
 
 ### Linting workflows
 
-- `lint-yaml` (`lint-yaml.yml`) — Runs yamllint on all `*.yml`/`*.yaml` on PRs and pushes.
-- `lint-action` (`lint-action.yml`) — Validates GitHub Actions YAML, expressions, and shell steps on PRs and pushes.
+- `lint-yaml.yml` — yamllint style validation.
+- `lint-action.yml` — actionlint validation (no ignore flags required now).
 
-Both workflows use concurrency to cancel stale runs on the same branch.
+Both use concurrency to cancel stale runs on the same branch.
 
-## Local development
+## Contributing / local development
 
 ### Editor setup
 
-- Install “YAML” by Red Hat for schema and indentation checks.
-- Editors that support EditorConfig will pick up `.editorconfig` automatically.
-- Optional: set an editor ruler at column 160 to match `.yamllint.yaml`.
+- Install the Red Hat YAML extension for schema hints.
+- EditorConfig support will auto-apply indentation and newline rules.
+- Optional: set a 160‑col ruler.
 
-### Pre-commit hook (optional – indexing only)
+### Typical workflow
 
-Use pre-commit (optional) only to keep the lightweight indexes fresh; linting now runs solely in CI (`lint-yaml.yml`, `lint-action.yml`).
+1. Export from DEV using `export-solution-from-dev.yml` (manual dispatch) selecting or specifying the solution name.
+2. Review PR with unpacked changes; merge.
+3. Create a Git tag via the export workflow or manually: `solution/<name>@<version>`.
+4. Create a GitHub Release from that tag (prerelease or full) to trigger deployment, or run the release workflow manually.
 
-Recommended (pipx, keeps Python tools isolated):
+### Optional manifest helper
 
-```bash
-# Install pipx if not already present (one-time)
-python -m pip install --user pipx
-python -m pipx ensurepath
-
-# Install and enable hook (indexing only)
-pipx install pre-commit
-pre-commit install
-
-# Run the indexing hook explicitly (or just commit; it triggers automatically on staged changes)
-pre-commit run reindex --all-files
-```
-
-Alternative (regular pip):
+Generate a machine-readable summary (not required for CI):
 
 ```bash
-python -m pip install --user pre-commit
-pre-commit install
-pre-commit run reindex --all-files
+bash scripts/generate-manifest.sh  # requires jq
 ```
 
-### Indexing (excluding solution contents)
+Produces `repo-manifest.json` (ignored by git).
 
-For faster navigation and to keep AI/context tools lightweight we maintain optional indexes that skip the heavy `solutions/` tree:
+### PAT for workflow file updates (rare case)
+
+If `sync-solution-choices.yml` needs to commit to workflow files and a 403 occurs, add secret `WORKFLOW_UPDATE_TOKEN` (classic PAT with repo + workflow scopes). The workflow auto-detects and uses it.
+
+### Linting locally (optional)
+
+CI enforces linting, so local runs are optional:
 
 ```bash
-# One-time prerequisites (optional): install universal-ctags (ctags index) and jq (robust JSON parsing).
-# Both are optional; without jq a fallback parser is used for `solutions.json`.
-# With Chocolatey:
-#   choco install universal-ctags jq -y
-# With winget:
-#   winget install -e --id UniversalCtags.Ctags
-#   winget install -e --id jqlang.jq
-# Or install manually; if jq is absent the manifest still builds best-effort.
+# actionlint (latest)
+bash <(curl -s https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+./actionlint -color
 
-# Generate / refresh indexes (auto-stages repo-manifest.json if it changes)
-bash scripts/reindex.sh
-
-# Files produced:
-#  .file-index         -> tracked file list excluding solutions/
-#  .tags               -> ctags symbols (YAML/XML) excluding solutions/
-#  repo-manifest.json  -> summary of workflows + solution names
+# yamllint
+pip install --user yamllint
+yamllint .
 ```
-
-VS Code Task: Run "Reindex (exclude solutions/)" from the task palette.
-
-Automation:
- 
-- Pre-commit hook (if you install with `pre-commit install`) rebuilds indexes and updates `repo-manifest.json` when needed.
-- `verify-indexes.yml` CI workflow regenerates the manifest and fails if it is stale (prompting you to run the reindex script locally).
-
-Note: `.file-index` and `.tags` are ignored (local helpers only); only `repo-manifest.json` is tracked & verified.
-
-The repository’s pre-commit configuration now only maintains the lightweight indexes (`repo-manifest.json`, `.file-index`, optional `.tags`). All YAML and workflow linting happens in CI.
-
-To opt back into local linting, add before the local repo block in `.pre-commit-config.yaml`:
-
-```yaml
-  - repo: https://github.com/adrienverge/yamllint
-    rev: v1.35.1
-    hooks:
-      - id: yamllint
-        args: ["-c", ".yamllint.yaml"]
-  - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.7
-    hooks:
-      - id: actionlint
-        args: ["-ignore", "unknown permission scope \"workflows\""]
-```
-
-Then run:
-
-```bash
-pre-commit clean
-pre-commit install
-pre-commit run --all-files
-```
-
-## License
-
-MIT
