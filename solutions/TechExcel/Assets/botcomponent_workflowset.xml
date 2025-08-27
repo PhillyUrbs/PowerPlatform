@@ -1,0 +1,5 @@
+<botcomponent_workflowset>
+  <botcomponent_workflow botcomponentid.schemaname="cr1b0_ContosoCopilot44392347.topic.CheckTicketStatus" workflowid.workflowid="26326ace-3f7f-ef11-ac21-6045bd09c8e7">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_workflow>
+</botcomponent_workflowset>

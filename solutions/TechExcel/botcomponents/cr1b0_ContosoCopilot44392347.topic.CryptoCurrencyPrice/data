@@ -1,0 +1,68 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - What's the current price of Bitcoin
+      - Can you tell me the latest crypto prices
+      - How much does Bitcoin cost now
+      - What are the prices of digital currencies today
+      - What's the latest on crypto prices
+
+  actions:
+    - kind: Question
+      id: question_v9bsDZ
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.Currency
+      prompt: What currency do you want to see the current price of Bitcoin in?
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          items:
+            - id: USD
+              displayName: USD
+
+            - id: EUR
+              displayName: EUR
+
+            - id: GBP
+              displayName: GBP
+
+    - kind: ConditionGroup
+      id: conditionGroup_gLn3OX
+      conditions:
+        - id: conditionItem_ZCcLUG
+          condition: =Topic.Currency = 'cr1b0_ContosoCopilot44392347.topic.CryptoCurrencyPrice.main.question_v9bsDZ'.GBP
+
+    - kind: HttpRequestAction
+      id: rZyxW5
+      url: =Lower(Concatenate("https://api.gemini.com/v2/ticker/btc",Topic.Currency))
+      response: Topic.CryptoCurrentPrice
+      responseSchema:
+        kind: Record
+        properties:
+          ask: String
+          bid: String
+          changes:
+            type:
+              kind: Table
+              properties:
+                Value: String
+
+          close: String
+          high: String
+          low: String
+          open: String
+          symbol: String
+
+    - kind: SendActivity
+      id: sendActivity_21EceV
+      activity: The current bid price for Bitcoins in {Topic.Currency} is {Topic.CryptoCurrentPrice.bid}
+
+    - kind: BeginDialog
+      id: o2FY7E
+      dialog: cr1b0_ContosoCopilot44392347.topic.EndofConversation

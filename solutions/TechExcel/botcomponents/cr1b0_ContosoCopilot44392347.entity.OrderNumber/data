@@ -1,0 +1,2 @@
+kind: RegexEntity
+pattern: ORD-[0-9]{6}

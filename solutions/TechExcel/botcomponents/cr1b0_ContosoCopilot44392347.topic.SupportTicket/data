@@ -1,0 +1,82 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - open a support ticket
+      - submit a support request
+      - need help with an issue
+      - report a problem
+      - request assistance
+      - file a support ticket
+      - having trouble, need help
+      - customer service inquiry
+      - log a support ticket
+
+  actions:
+    - kind: Question
+      id: Question_UvIs3I
+      variable: Topic.TicketTitle
+      prompt: Please provide the title of your support ticket.
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: Question_gPT0vm
+      variable: Topic.Severity
+      prompt: "Please select the severity of the issue: High, Medium, or Low."
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          optionSetName: SeverityOptions
+          items:
+            - id: high
+              displayName: High
+
+            - id: medium
+              displayName: Medium
+
+            - id: low
+              displayName: Low
+
+    - kind: Question
+      id: Question_ZOSxFP
+      variable: Topic.Description
+      prompt: Please describe the issue in detail.
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: Question_4PiaJQ
+      variable: Topic.EmailAddress
+      prompt: Please provide your email address for update notifications.
+      entity: EmailPrebuiltEntity
+
+    - kind: SendActivity
+      id: SendActivity_6nW6t3
+      activity: |-
+        Support ticket created successfully with the following details:
+        - Title: {Topic.TicketTitle}
+        - Severity: {Topic.Severity}
+        - Description: {Topic.Description}
+        - Email for updates: {Topic.EmailAddress}
+        - Preferred contact method: {Topic.ContactMethod}
+
+    - kind: Question
+      id: Question_7nW6t3
+      variable: Topic.ContactMethod
+      prompt: How would you prefer to be contacted? Please choose from Email, Phone, or SMS.
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          optionSetName: ContactMethodOptions
+          items:
+            - id: email
+              displayName: Email
+
+            - id: phone
+              displayName: Phone
+
+            - id: sms
+              displayName: SMS

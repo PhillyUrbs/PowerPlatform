@@ -1,0 +1,10 @@
+<botcomponent schemaname="cr1b0_ContosoCopilot44392347.entity.OrderNumber">
+  <componenttype>11</componenttype>
+  <iscustomizable>0</iscustomizable>
+  <name>Order Number</name>
+  <parentbotid>
+    <schemaname>cr1b0_ContosoCopilot44392347</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>

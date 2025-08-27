@@ -1,0 +1,8 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRedirect
+  id: main
+  actions:
+    - kind: SendActivity
+      id: sendActivity_ECvrHJ
+      activity: Your order has been canceled, thank you.
