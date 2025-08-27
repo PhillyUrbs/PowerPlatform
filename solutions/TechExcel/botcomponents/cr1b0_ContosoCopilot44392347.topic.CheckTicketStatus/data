@@ -1,0 +1,260 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - What is the status of my ticket INC0008001
+      - Can you get me information on my ticket status
+      - Could you check the status of my ticket
+      - Status update on ticket INC0009005
+      - What’s happening with my ticket INC1234567
+
+  actions:
+    - kind: Question
+      id: question_hUDwu3
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.TicketNumber
+      prompt: Of course, I can get you the status of your ticket. What is your ticket number?
+      entity:
+        kind: RegexEntityReference
+        entityId: cr1b0_ContosoCopilot44392347.entity.TicketNumber
+
+    - kind: InvokeFlowAction
+      id: invokeFlowAction_3ZAMho
+      input:
+        binding:
+          text: =Topic.TicketNumber
+
+      output:
+        binding:
+          snticketinfo: Topic.SNTicketInfo
+
+      flowId: 26326ace-3f7f-ef11-ac21-6045bd09c8e7
+
+    - kind: ParseValue
+      id: fODEfq
+      variable: Topic.SNTicketInfoParsed
+      valueType:
+        kind: Record
+        properties:
+          active: String
+          activity_due: String
+          additional_assignee_list: String
+          approval: String
+          approval_history: String
+          approval_set: String
+          assigned_to: String
+          assignment_group: String
+          business_duration: String
+          business_impact: String
+          business_service: String
+          business_stc: String
+          calendar_duration: String
+          calendar_stc: String
+          caller_id: String
+          category: String
+          cause: String
+          caused_by: String
+          child_incidents: String
+          close_notes: String
+          closed_at: String
+          closed_by: String
+          cmdb_ci: String
+          comments: String
+          comments_and_work_notes: String
+          company: String
+          contract: String
+          correlation_display: String
+          correlation_id: String
+          delivery_plan: String
+          delivery_task: String
+          description: String
+          due_date: String
+          escalation: String
+          expected_start: String
+          follow_up: String
+          group_list: String
+          hold_reason: String
+          impact: String
+          incident_state: String
+          knowledge: String
+          location: String
+          made_sla: String
+          notify: String
+          number: String
+          opened_at: String
+          opened_by: String
+          order: String
+          origin_id: String
+          origin_table: String
+          parent: String
+          parent_incident: String
+          priority: String
+          problem_id: String
+          reassignment_count: String
+          reopen_count: String
+          reopened_by: String
+          reopened_time: String
+          resolved_at: String
+          resolved_by: String
+          rfc: String
+          route_reason: String
+          service_offering: String
+          severity: String
+          short_description: String
+          sla_due: String
+          state: String
+          subcategory: String
+          sys_class_name: String
+          sys_created_by: String
+          sys_created_on: String
+          sys_domain: String
+          sys_domain_path: String
+          sys_id: String
+          sys_mod_count: String
+          sys_tags: String
+          sys_updated_by: String
+          sys_updated_on: String
+          task_effective_number: String
+          time_worked: String
+          universal_request: String
+          upon_approval: String
+          upon_reject: String
+          urgency: String
+          user_input: String
+          watch_list: String
+          work_end: String
+          work_notes: String
+          work_notes_list: String
+          work_start: String
+
+      value: =Topic.SNTicketInfo
+
+    - kind: SendActivity
+      id: sendActivity_2PtQuG
+      activity:
+        text:
+          - The status of ticket {Topic.TicketNumber} ({Topic.SNTicketInfoParsed.short_description}) is {Topic.SNTicketInfoParsed.state}
+        attachments:
+          - kind: AdaptiveCardTemplate
+            cardContent: |-
+              ={
+                type: "AdaptiveCard",
+                version: "1.5",
+                body: [
+                  {
+                    type: "ColumnSet",
+                    columns: [
+                      {
+                        type: "Column",
+                        width: "auto",
+                        items: [
+                          {
+                            type: "Image",
+                            url: "https://www.servicenow.com/community/s/legacyfs/online/avatars_servicenow/1f66cb9fdb3ee3c0107d5583ca961942.jpg",
+                            size: "Small",
+                            style: "Person"
+                          }
+                        ]
+                      },
+                      {
+                        type: "Column",
+                        width: "stretch",
+                        items: [
+                          {
+                            type: "TextBlock",
+                            text: Topic.SNTicketInfoParsed.short_description,
+                            weight: "Bolder",
+                            size: "Large",
+                            wrap: true,
+                            color: "Attention",
+                            horizontalAlignment: "Left"
+                          }
+                        ],
+                        verticalContentAlignment: "Center",
+                        horizontalAlignment: "Center"
+                      }
+                    ]
+                  },
+                  {
+                    type: "TextBlock",
+                    text: Topic.SNTicketInfoParsed.description,
+                    weight: "Lighter",
+                    wrap: true
+                  },
+                  {
+                    type: "FactSet",
+                    facts: [
+                      {
+                        title: "Number:",
+                        value: Topic.SNTicketInfoParsed.number
+                      },
+                      {
+                        title: "State:",
+                        value: Topic.SNTicketInfoParsed.state
+                      },
+                      {
+                        title: "Priority:",
+                        value: Topic.SNTicketInfoParsed.priority
+                      },
+                      {
+                        title: "Impact:",
+                        value: Topic.SNTicketInfoParsed.impact
+                      },
+                      {
+                        title: "Urgency:",
+                        value: Topic.SNTicketInfoParsed.urgency
+                      },
+                      {
+                        title: "Category:",
+                        value: Topic.SNTicketInfoParsed.category
+                      },
+                      {
+                        title: "Subcategory:",
+                        value: Topic.SNTicketInfoParsed.subcategory
+                      },
+                      {
+                        title: "Caller ID:",
+                        value: Topic.SNTicketInfoParsed.caller_id
+                      },
+                      {
+                        title: "Opened By:",
+                        value: Topic.SNTicketInfoParsed.opened_by
+                      },
+                      {
+                        title: "Opened At:",
+                        value: Topic.SNTicketInfoParsed.opened_at
+                      }
+                    ],
+                    spacing: "Small"
+                  },
+                  {
+                    type: "TextBlock",
+                    text: "Comments and notes:",
+                    weight: "Bolder",
+                    size: "Medium",
+                    wrap: true
+                  },
+                  {
+                    type: "TextBlock",
+                    text: Topic.SNTicketInfoParsed.comments_and_work_notes,
+                    wrap: true,
+                    size: "Small"
+                  }
+                ],
+                actions: [
+                  {
+                    type: "Action.OpenUrl",
+                    title: "Update Ticket",
+                    url: "https://dev204932.service-now.com/nav_to.do?uri=incident.do?sys_id=" & Topic.SNTicketInfoParsed.sys_id & "%26sysparm_view=ess"
+                  }
+                ],
+                '$schema': "http://adaptivecards.io/schemas/adaptive-card.json"
+              }
+
+    - kind: BeginDialog
+      id: 2ZTcxL
+      dialog: cr1b0_ContosoCopilot44392347.topic.EndofConversation

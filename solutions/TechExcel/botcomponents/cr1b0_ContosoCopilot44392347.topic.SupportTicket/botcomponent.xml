@@ -1,0 +1,10 @@
+<botcomponent schemaname="cr1b0_ContosoCopilot44392347.topic.SupportTicket">
+  <componenttype>9</componenttype>
+  <iscustomizable>0</iscustomizable>
+  <name>Support Ticket</name>
+  <parentbotid>
+    <schemaname>cr1b0_ContosoCopilot44392347</schemaname>
+  </parentbotid>
+  <statecode>1</statecode>
+  <statuscode>2</statuscode>
+</botcomponent>

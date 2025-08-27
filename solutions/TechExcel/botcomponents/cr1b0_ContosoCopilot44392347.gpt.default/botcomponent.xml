@@ -1,0 +1,11 @@
+<botcomponent schemaname="cr1b0_ContosoCopilot44392347.gpt.default">
+  <componenttype>15</componenttype>
+  <description>You assist Contoso customers by answering common questions and helping with tasks such as checking order status.</description>
+  <iscustomizable>0</iscustomizable>
+  <name>Contoso Customer Assistant</name>
+  <parentbotid>
+    <schemaname>cr1b0_ContosoCopilot44392347</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>

@@ -1,0 +1,70 @@
+{
+  "properties": {
+    "connectionReferences": {},
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "VirtualAgent",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "description": "Please enter your input",
+                  "title": "TicketNumber",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Return_value(s)_to_Power_Virtual_Agents": {
+          "runAfter": {},
+          "type": "Response",
+          "kind": "VirtualAgent",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "snticketinfo": {
+                  "title": "SNTicketInfo",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "additionalProperties": {}
+            },
+            "statusCode": 200,
+            "body": {
+              "snticketinfo": "{\n    \"parent\": \"\",\n    \"made_sla\": \"true\",\n    \"caused_by\": \"\",\n    \"watch_list\": \"\",\n    \"upon_reject\": \"Cancel all future Tasks\",\n    \"sys_updated_on\": \"2018-12-12 23:18:55\",\n    \"child_incidents\": \"0\",\n    \"hold_reason\": \"\",\n    \"origin_table\": \"\",\n    \"task_effective_number\": \"INC0009005\",\n    \"approval_history\": \"\",\n    \"number\": \"INC0009005\",\n    \"resolved_by\": \"\",\n    \"sys_updated_by\": \"admin\",\n    \"opened_by\": \"System Administrator\",\n    \"user_input\": \"\",\n    \"sys_created_on\": \"2018-08-31 21:35:45\",\n    \"sys_domain\": \"global\",\n    \"state\": \"New\",\n    \"route_reason\": \"\",\n    \"sys_created_by\": \"admin\",\n    \"knowledge\": \"false\",\n    \"order\": \"\",\n    \"calendar_stc\": \"\",\n    \"closed_at\": \"\",\n    \"cmdb_ci\": \"\",\n    \"delivery_plan\": \"\",\n    \"contract\": \"\",\n    \"impact\": \"1 - High\",\n    \"active\": \"true\",\n    \"work_notes_list\": \"\",\n    \"business_service\": \"\",\n    \"business_impact\": \"\",\n    \"priority\": \"1 - Critical\",\n    \"sys_domain_path\": \"/\",\n    \"rfc\": \"\",\n    \"time_worked\": \"\",\n    \"expected_start\": \"\",\n    \"opened_at\": \"2018-08-31 21:35:21\",\n    \"business_duration\": \"\",\n    \"group_list\": \"\",\n    \"work_end\": \"\",\n    \"caller_id\": \"David Miller\",\n    \"reopened_time\": \"\",\n    \"resolved_at\": \"\",\n    \"approval_set\": \"\",\n    \"subcategory\": \"Email\",\n    \"work_notes\": \"2018-12-12 23:18:42 - System Administrator (Work notes)\\nupdated the priority to high based on the criticality of the Incident.\\n\\n\",\n    \"universal_request\": \"\",\n    \"short_description\": \"Email server is down.\",\n    \"correlation_display\": \"\",\n    \"delivery_task\": \"\",\n    \"work_start\": \"\",\n    \"assignment_group\": \"\",\n    \"additional_assignee_list\": \"\",\n    \"business_stc\": \"\",\n    \"cause\": \"\",\n    \"description\": \"Unable to send or receive emails.\",\n    \"origin_id\": \"\",\n    \"calendar_duration\": \"\",\n    \"close_notes\": \"\",\n    \"notify\": \"Do Not Notify\",\n    \"service_offering\": \"\",\n    \"sys_class_name\": \"Incident\",\n    \"closed_by\": \"\",\n    \"follow_up\": \"\",\n    \"parent_incident\": \"\",\n    \"sys_id\": \"ed92e8d173d023002728660c4cf6a7bc\",\n    \"reopened_by\": \"\",\n    \"incident_state\": \"New\",\n    \"urgency\": \"1 - High\",\n    \"problem_id\": \"\",\n    \"company\": \"\",\n    \"reassignment_count\": \"0\",\n    \"activity_due\": \"2018-12-13 01:18:55\",\n    \"assigned_to\": \"\",\n    \"severity\": \"3 - Low\",\n    \"comments\": \"\",\n    \"approval\": \"Not Yet Requested\",\n    \"sla_due\": \"UNKNOWN\",\n    \"comments_and_work_notes\": \"2018-12-12 23:18:42 - System Administrator (Work notes)\\nupdated the priority to high based on the criticality of the Incident.\\n\\n\",\n    \"due_date\": \"\",\n    \"sys_mod_count\": \"3\",\n    \"reopen_count\": \"0\",\n    \"sys_tags\": \"\",\n    \"escalation\": \"Normal\",\n    \"upon_approval\": \"Proceed to Next Task\",\n    \"correlation_id\": \"\",\n    \"location\": \"\",\n    \"category\": \"Software\"\n}"
+            }
+          }
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": "c9cd2c4e691a4646adc8aa592c88489b"
+  },
+  "schemaVersion": "1.0.0.0"
+}

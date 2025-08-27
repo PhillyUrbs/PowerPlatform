@@ -1,0 +1,94 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - order status
+      - track my order
+      - where is my order
+      - check delivery status
+      - status of my purchase
+      - locate my order
+      - find out about my order
+      - order tracking information
+
+  actions:
+    - kind: Question
+      id: question_TjTK8P
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.OrderNumber
+      prompt: Please could you tell me your order number?
+      entity:
+        kind: RegexEntityReference
+        entityId: cr1b0_ContosoCopilot44392347.entity.OrderNumber
+
+    - kind: Question
+      id: Question_3JlppG
+      variable: Global.OrderRequest
+      prompt: What would you like to do with your order?
+      entity:
+        kind: ClosedListEntityReference
+        entityId: cr1b0_ContosoCopilot44392347.entity.OrderAction
+        selectedItems:
+          - X4CEYX
+          - xbdemA
+          - R6hNnB
+
+    - kind: SendActivity
+      id: sendActivity_6dDdaB
+      activity: No problem. We can {Lower(Global.OrderRequest)} that for you. Let us take a look at that now and get your information
+
+    - kind: ConditionGroup
+      id: conditionGroup_S0RMel
+      conditions:
+        - id: conditionItem_7uE9Gi
+          condition: =Global.OrderRequest = 'cr1b0_ContosoCopilot44392347.entity.OrderAction'.X4CEYX
+          actions:
+            - kind: SendActivity
+              id: sendActivity_cpGh2N
+              activity: c
+
+        - id: conditionItem_O4G1dL
+          condition: =Global.OrderRequest = 'cr1b0_ContosoCopilot44392347.entity.OrderAction'.xbdemA
+          actions:
+            - kind: SendActivity
+              id: sendActivity_Q9QkAg
+              activity:
+                text:
+                  - One moment, I will check your order for you.
+                  - Absolutely. One moment and I'll get the order for you.
+
+            - kind: SetVariable
+              id: setVariable_Cm9mIK
+              variable: Topic.OrderDeliveryDate
+              value: |-
+                =Text(
+                    DateAdd(
+                        Now(),
+                        2,
+                        TimeUnit.Days
+                    ),
+                    DateTimeFormat.LongDate
+                )
+
+            - kind: SendActivity
+              id: sendActivity_XVHEBc
+              activity: Your order {Topic.OrderNumber} should be delivered by {Topic.OrderDeliveryDate}.
+
+        - id: conditionItem_aM1Hob
+          condition: =Global.OrderRequest = 'cr1b0_ContosoCopilot44392347.entity.OrderAction'.R6hNnB
+          actions:
+            - kind: SendActivity
+              id: sendActivity_smMVLm
+              activity: One moment, I will cancel your order for you.
+
+            - kind: BeginDialog
+              id: jYlq5h
+              dialog: cr1b0_ContosoCopilot44392347.topic.OrderCancellation
+
+    - kind: BeginDialog
+      id: mmOxJ5
+      dialog: cr1b0_ContosoCopilot44392347.topic.EndofConversation

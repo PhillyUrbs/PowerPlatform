@@ -1,0 +1,11 @@
+kind: ClosedListEntity
+smartMatchingEnabled: true
+items:
+  - id: X4CEYX
+    displayName: Update
+
+  - id: xbdemA
+    displayName: Check
+
+  - id: R6hNnB
+    displayName: Cancel
