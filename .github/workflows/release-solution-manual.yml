@@ -101,7 +101,7 @@ jobs:
           name: managedSolutions
           path: ${{ github.event.inputs.solution_shipping_folder}}/${{ github.event.inputs.solution_name }}.zip
 
-  release-to-staging:
+  release-to-environment:
     needs: [convert-to-managed]
     runs-on: windows-latest
     env:
