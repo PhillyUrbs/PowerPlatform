@@ -16,18 +16,20 @@ on:
           - ALMLab
           - TechExcel
           # GENERATED-OPTIONS-END
-      environment_name_build:
-        description: 'GitHub environment providing BUILD env secrets/vars'
+      environment_name:
+        description: 'GitHub environment holding all Power Platform env secrets/vars (BUILD + QA + PROD)'
         required: true
         type: choice
         options:
           - philurban-M365x06004729
-      environment_name_target:
-        description: 'GitHub environment providing TARGET (QA/Prod/etc) env secrets/vars'
+      publish_target_env:
+        description: 'Target stage to import managed solution (QA or PROD)'
         required: true
         type: choice
         options:
-          - philurban-M365x06004729
+          - QA
+          - PROD
+        default: QA
   # no default; must be specified at dispatch time
       # Do Not change these values
       solution_shipping_folder:
@@ -49,8 +51,7 @@ on:
 
 # edit your values here
 env:
-  BUILD_ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_DEV }}
-  PRODUCTION_ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_QA }}
+  BUILD_ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_BUILD }}
   CLIENT_ID: ${{ secrets.POWERPLATFORMAPPID }}
   TENANT_ID: ${{ secrets.TENANTID }}
 
@@ -60,7 +61,7 @@ permissions:
 jobs:
   convert-to-managed:
     runs-on: windows-latest
-    environment: ${{ github.event.inputs.environment_name_build }}
+    environment: ${{ github.event.inputs.environment_name }}
     # or you can use ubuntu-latest
     env:
       RUNNER_DEBUG: 1
@@ -118,7 +119,7 @@ jobs:
   release-to-environment:
     needs: [convert-to-managed]
     runs-on: windows-latest
-    environment: ${{ github.event.inputs.environment_name_target }}
+    environment: ${{ github.event.inputs.environment_name }}
     env:
       RUNNER_DEBUG: 1
 
@@ -130,16 +131,30 @@ jobs:
       - name: Install Power Platform CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
+      - name: Resolve target environment URL
+        id: resolve_target
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="${{ github.event.inputs.publish_target_env }}"
+          if [ "$target" = "PROD" ]; then
+            echo "TARGET_ENVIRONMENT_URL=${{ vars.ENVIRONMENTURL_PROD }}" >> "$GITHUB_ENV"
+            echo "Resolved target to PROD";
+          else
+            echo "TARGET_ENVIRONMENT_URL=${{ vars.ENVIRONMENTURL_QA }}" >> "$GITHUB_ENV"
+            echo "Resolved target to QA";
+          fi
+
       - name: Fetch the ready to ship solution from GH artifact store
         uses: actions/download-artifact@v5
         with:
           name: managedSolutions
           path: ${{ github.event.inputs.solution_release_folder}}
 
-      - name: Import solution to prod env
+      - name: Import managed solution to target env (QA/PROD)
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
-          environment-url: ${{env.PRODUCTION_ENVIRONMENT_URL}}
+          environment-url: ${{env.TARGET_ENVIRONMENT_URL}}
           app-id: ${{env.CLIENT_ID}}
           client-secret: ${{ secrets.POWERPLATFORMAPPSECRET }}
           tenant-id: ${{env.TENANT_ID}}
