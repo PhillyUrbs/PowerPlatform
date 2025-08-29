@@ -67,59 +67,6 @@ Required secrets (repeat in each GitHub Environment — values may be identical 
 | Service principal client secret value | `POWERPLATFORMAPPSECRET` | App registration → Certificates & secrets |
 | Azure AD Tenant ID | `TENANTID` | App registration overview |
 
-Repository (global) optional secret:
-
-| Purpose | Secret Name | Notes |
-|---------|-------------|-------|
-| Enable workflow file auto-updates (dropdown sync) if standard GITHUB_TOKEN fails with 403 | `WORKFLOW_UPDATE_TOKEN` | Classic PAT with `repo` + `workflow` scopes |
-
-Naming conventions are hard-coded in workflows; use exact names.
-
-## 4. Validate with Power Platform CLI (optional)
-
-Install the CLI locally and ensure the service principal can authenticate & list solutions:
-
-```bash
-pac auth create \
-  --name alm-sp-test \
-  --url "https://org-dev.crm.dynamics.com" \
-  --tenant "$TENANTID" \
-  --applicationId "$POWERPLATFORMAPPID" \
-  --clientSecret "$POWERPLATFORMAPPSECRET"
-
-pac solution list
-```
-
-You should see solutions including those exported into `solutions/` in this repo.
-
-## 5. Adding a new stage (e.g., STAGING)
-
-If you introduce a new deployment stage:
-
-1. Add a new Dataverse environment & onboard the app (steps 1–2).
-2. Add a new environment variable `ENVIRONMENTURL_STAGING` in the GitHub Environment (or create a separate GitHub Environment if you prefer isolation of secrets).
-3. Update workflows that switch on stage lists:
-   - `release-solution-manual.yml` (add `STAGING` to the `publish_target_env` dropdown & extend the URL resolution step).
-   - Any orchestrator logic (e.g., `release-action-call.yml`) if you want automated routes (prerelease vs release) to map to STAGING.
-4. (Optional) Adjust documentation in `README.md` to include the new variable.
-
-## 6. Troubleshooting
-
-| Symptom | Likely Cause | Fix |
-|---------|--------------|-----|
-| Import/Export step 401 or insufficient privileges | Missing role assignments on Application User | Assign System Administrator or required custom role |
-| Action fails: cannot find solution | Wrong environment URL variable value | Double-check `ENVIRONMENTURL_*` value matches target org URL |
-| CLI cannot auth (invalid client) | App registration ID mismatch | Re-copy `POWERPLATFORMAPPID` |
-| CLI cannot auth (invalid secret) | Secret expired or not copied fully | Rotate & update `POWERPLATFORMAPPSECRET` |
-| Workflow fails writing dropdown updates | Missing PAT | Add `WORKFLOW_UPDATE_TOKEN` secret |
-
-## 7. Security Best Practices
-
-- Limit the service principal to the minimal custom role in production once stable.
-- Rotate client secrets regularly; set calendar reminders before expiry.
-- Use separate GitHub Environments for PROD vs non-prod if you want manual approval gates.
-- Avoid storing environment URLs in secrets; variables suffice (non-sensitive).
-
 ---
 
 After completing these steps, you can: (a) export a solution from DEV using `export-solution-from-dev.yml`, (b) merge the PR, and (c) trigger a release (manual or via Release creation) to deploy through BUILD → QA → PROD.
