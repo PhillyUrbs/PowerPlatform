@@ -10,12 +10,8 @@ on:
         description: 'The solution name.'
         type: string
       # no default; must be provided by caller
-      build_environment_name:
-        description: 'GitHub environment name providing BUILD env secrets/vars'
-        type: string
-        default: philurban-M365x06004729
-      target_environment_name:
-        description: 'GitHub environment name providing TARGET env secrets/vars'
+      environment_name:
+        description: 'GitHub environment name providing ALL required env vars/secrets (BUILD + QA/PROD)'
         type: string
         default: philurban-M365x06004729
       solution_shipping_folder:
@@ -54,7 +50,7 @@ on:
 jobs:
   convert-to-managed-solution:
     runs-on: windows-latest
-    environment: ${{ inputs.build_environment_name }}
+    environment: ${{ inputs.environment_name }}
     env:
       RUNNER_DEBUG: 1
     steps:
@@ -125,7 +121,7 @@ jobs:
   release-to-power-platform:
     needs: [convert-to-managed-solution]
     runs-on: windows-latest
-    environment: ${{ inputs.target_environment_name }}
+    environment: ${{ inputs.environment_name }}
     env:
       RUNNER_DEBUG: 1
     steps:
