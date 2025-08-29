@@ -1,5 +1,5 @@
 {
-  "generated": "2025-08-29T01:30:39Z",
+  "generated": "2025-08-29T01:36:29Z",
   "solutions": [
     "ALMLab",
     "TechExcel"
@@ -12,7 +12,8 @@
     ".github/workflows/release-action-call.yml",
     ".github/workflows/release-solution.yml",
     ".github/workflows/release-solution-manual.yml",
-    ".github/workflows/sync-solution-choices.yml"
+    ".github/workflows/sync-solution-choices.yml",
+    ".github/workflows/validate-solution-config.yml"
   ],
   "notes": {
     "solutionsContentExcluded": true
