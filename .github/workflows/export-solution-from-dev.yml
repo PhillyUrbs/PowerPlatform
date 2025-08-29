@@ -35,8 +35,8 @@ on:
 
 # edit your values here
 env:
-  ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_DEV }}
-  CLIENT_ID: ${{ secrets.POWERPLATFORM_APPID }}
+  ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_DEV }}
+  CLIENT_ID: ${{ secrets.POWERPLATFORMAPPID }}
   TENANT_ID: ${{ secrets.TENANTID }}
 
 permissions:
@@ -45,6 +45,7 @@ permissions:
 jobs:
   export-from-dev:
     runs-on: windows-latest
+    environment: dev
     # or you can say runs-on: ubuntu-latest
     env:
       RUNNER_DEBUG: 1
@@ -82,7 +83,7 @@ jobs:
         with:
           environment-url: ${{env.ENVIRONMENT_URL}}
           app-id: ${{env.CLIENT_ID}}
-          client-secret: ${{ secrets.POWERPLATFORMSPN }}
+          client-secret: ${{ secrets.POWERPLATFORMAPPSECRET }}
           tenant-id: ${{env.TENANT_ID}}
 
       - name: Export Solution
@@ -90,7 +91,7 @@ jobs:
         with:
           environment-url: ${{env.ENVIRONMENT_URL}}
           app-id: ${{env.CLIENT_ID}}
-          client-secret: ${{ secrets.POWERPLATFORMSPN }}
+          client-secret: ${{ secrets.POWERPLATFORMAPPSECRET }}
           tenant-id: ${{env.TENANT_ID}}
           solution-name: ${{ steps.resolve.outputs.solution_name }}
           solution-output-file: ${{ github.event.inputs.solution_exported_folder}}/${{ steps.resolve.outputs.solution_name }}.zip
