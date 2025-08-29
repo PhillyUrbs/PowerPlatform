@@ -111,10 +111,12 @@ Workflow: `.github/workflows/release-action-call.yml`
 
 Purpose: Orchestrates releases to QA or PROD by calling the reusable workflow `release-solution.yml`.
 
-Triggers:
+Current mode: Automatic release event triggers are disabled (only manual dispatch). Re‑enable by uncommenting the `release:` trigger block inside the workflow.
 
-- GitHub Release events: `prereleased` and `released`.
-- Manual: `workflow_dispatch` with a solution dropdown.
+Triggers (when fully enabled):
+
+- GitHub Release events: `prereleased` (deploy to QA) and `released` (deploy to PROD).
+- Manual: `workflow_dispatch` with a solution dropdown + target stage.
 
 How the solution name is resolved:
 
@@ -125,21 +127,21 @@ How the solution name is resolved:
   - If none match, the workflow fails with guidance to include one of the above patterns.
 - For Manual runs, it uses the `solution_name` dropdown input directly.
 
-Environments and behavior:
+Environment handling:
 
-- If the GitHub Release is marked prerelease, it deploys to QA (`ENVIRONMENTURL_QA`).
-- If it’s a full release, it deploys to PROD (`ENVIRONMENTURL_PROD`).
-- Both paths use the build environment (`ENVIRONMENTURL_BUILD`) and call the reusable workflow with the resolved `solution_name`.
-- The manual path defaults to QA (see the comment in the workflow) but can be changed in the YAML if desired.
+- A single GitHub environment input (`environment_name`) now supplies all required secrets/variables (APP ID, SECRET, TENANT, and all `ENVIRONMENTURL_*` values).
+- Stage routing depends solely on which URL is selected: prerelease → `ENVIRONMENTURL_QA`, release → `ENVIRONMENTURL_PROD`, manual path picks based on the chosen dropdown (QA/PROD).
+- `ENVIRONMENTURL_BUILD` is always used for the conversion (pack/import/export managed cycle).
 
-Required environment secrets/variables for release:
+Required environment secrets/variables for release (all reside in the same GitHub environment):
 
-- `POWERPLATFORMAPPSECRET` (as environment secret)
-- `ENVIRONMENTURL_BUILD` (as environment variable)
-- `ENVIRONMENTURL_QA` (as environment variable, for prereleases)
-- `ENVIRONMENTURL_PROD` (as environment variable, for full releases)
-- `POWERPLATFORMAPPID` (as environment secret)
-- `TENANTID` (as environment secret)
+- `POWERPLATFORMAPPID` (secret)
+- `POWERPLATFORMAPPSECRET` (secret)
+- `TENANTID` (secret)
+- `ENVIRONMENTURL_BUILD` (variable)
+- `ENVIRONMENTURL_QA` (variable)
+- `ENVIRONMENTURL_PROD` (variable)
+- (Optional) `ENVIRONMENTURL_DEV` if also used by export workflow in that environment
 
 Examples of acceptable release tags/titles:
 
