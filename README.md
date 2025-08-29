@@ -40,28 +40,25 @@ Quick reference of required names (details in the guide): `POWERPLATFORMAPPID`, 
 
 Configure these GitHub environments (Settings → Environments) with appropriate secrets and variables:
 
-**DEV Environment:**
+**Shared Environment Secrets/Variables**
 
-- Environment variable: `ENVIRONMENTURL_DEV` — URL of the DEV Dataverse environment (e.g., `https://org12345.crm.dynamics.com`)
 - Environment secret: `POWERPLATFORMAPPID` — Azure AD app (service principal) Application (client) ID
 - Environment secret: `POWERPLATFORMAPPSECRET` — Client secret for the service principal
 - Environment secret: `TENANTID` — Azure AD tenant ID
+
+**DEV Environment:**
+
+- Environment variable: `ENVIRONMENTURL_DEV` — URL of the DEV Dataverse environment (e.g., `https://org12345.crm.dynamics.com`)
 
 **QA Environment:**
 
 - Environment variable: `ENVIRONMENTURL_QA` — URL of the QA Dataverse environment
-- Environment secret: `POWERPLATFORMAPPID` — Azure AD app (service principal) Application (client) ID
-- Environment secret: `POWERPLATFORMAPPSECRET` — Client secret for the service principal
-- Environment secret: `TENANTID` — Azure AD tenant ID
 
 **PROD Environment:**
 
 - Environment variable: `ENVIRONMENTURL_PROD` — URL of the PROD Dataverse environment
-- Environment secret: `POWERPLATFORMAPPID` — Azure AD app (service principal) Application (client) ID
-- Environment secret: `POWERPLATFORMAPPSECRET` — Client secret for the service principal
-- Environment secret: `TENANTID` — Azure AD tenant ID
 
-**BUILD Environment Variables (shared across environments):**
+**BUILD Environment**
 
 - Environment variable: `ENVIRONMENTURL_BUILD` — URL of the BUILD Dataverse environment for solution conversion
 
