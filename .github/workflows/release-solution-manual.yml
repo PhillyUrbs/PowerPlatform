@@ -14,6 +14,7 @@ on:
         options:
           # GENERATED-OPTIONS-START
           - ALMLab
+          - TechExcel
           # GENERATED-OPTIONS-END
       environment_name_build:
         description: 'GitHub environment providing BUILD env secrets/vars'

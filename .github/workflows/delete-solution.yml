@@ -10,6 +10,7 @@ on:
         options:
           # GENERATED-OPTIONS-START
           - ALMLab
+          - TechExcel
           # GENERATED-OPTIONS-END
 
 permissions:

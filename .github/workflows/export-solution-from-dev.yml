@@ -13,6 +13,7 @@ on:
         options:
           # GENERATED-OPTIONS-START
           - ALMLab
+          - TechExcel
           # GENERATED-OPTIONS-END
       solution_name_custom:
         description: 'Optional: enter a custom solution name (overrides the dropdown if set)'

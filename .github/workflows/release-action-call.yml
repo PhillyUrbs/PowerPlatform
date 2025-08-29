@@ -14,6 +14,7 @@ on:
         options:
           # GENERATED-OPTIONS-START
           - ALMLab
+          - TechExcel
           # GENERATED-OPTIONS-END
         # no default; must be specified for manual runs
       target_stage:
