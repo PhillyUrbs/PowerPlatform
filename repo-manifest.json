@@ -1,6 +1,9 @@
 {
-  "generated": "2025-08-29T01:16:57Z",
-  "solutions": [],
+  "generated": "2025-08-29T01:20:05Z",
+  "solutions": [
+    "ALMLab",
+    "TechExcel"
+  ],
   "workflows": [
     ".github/workflows/delete-solution.yml",
     ".github/workflows/export-solution-from-dev.yml",
