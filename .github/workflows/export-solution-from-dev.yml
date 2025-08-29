@@ -18,6 +18,12 @@ on:
         description: 'Optional: enter a custom solution name (overrides the dropdown if set)'
         required: false
         type: string
+      environment_name:
+        description: 'GitHub environment containing secrets/vars for the source environment'
+        required: true
+        type: choice
+        options:
+          - philurban-M365x06004729
   # no default; must be specified at dispatch time
       # Do Not change these values
       solution_exported_folder:
@@ -35,8 +41,8 @@ on:
 
 # edit your values here
 env:
-  ENVIRONMENT_URL: ${{ secrets.ENVIRONMENTURL_DEV }}
-  CLIENT_ID: ${{ secrets.POWERPLATFORM_APPID }}
+  ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_DEV }}
+  CLIENT_ID: ${{ secrets.POWERPLATFORMAPPID }}
   TENANT_ID: ${{ secrets.TENANTID }}
 
 permissions:
@@ -45,6 +51,7 @@ permissions:
 jobs:
   export-from-dev:
     runs-on: windows-latest
+    environment: ${{ github.event.inputs.environment_name }}
     # or you can say runs-on: ubuntu-latest
     env:
       RUNNER_DEBUG: 1
@@ -82,7 +89,7 @@ jobs:
         with:
           environment-url: ${{env.ENVIRONMENT_URL}}
           app-id: ${{env.CLIENT_ID}}
-          client-secret: ${{ secrets.POWERPLATFORMSPN }}
+          client-secret: ${{ secrets.POWERPLATFORMAPPSECRET }}
           tenant-id: ${{env.TENANT_ID}}
 
       - name: Export Solution
@@ -90,7 +97,7 @@ jobs:
         with:
           environment-url: ${{env.ENVIRONMENT_URL}}
           app-id: ${{env.CLIENT_ID}}
-          client-secret: ${{ secrets.POWERPLATFORMSPN }}
+          client-secret: ${{ secrets.POWERPLATFORMAPPSECRET }}
           tenant-id: ${{env.TENANT_ID}}
           solution-name: ${{ steps.resolve.outputs.solution_name }}
           solution-output-file: ${{ github.event.inputs.solution_exported_folder}}/${{ steps.resolve.outputs.solution_name }}.zip

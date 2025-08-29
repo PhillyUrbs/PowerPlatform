@@ -13,14 +13,14 @@ Key files and contracts
   - Markers to preserve: `# GENERATED-OPTIONS-START` and `# GENERATED-OPTIONS-END`. Only replace the list items between them.
 - `.github/workflows/delete-solution.yml` — Dropdown-only input. Deletes `solutions/<name>` and removes it from `solutions.json`, then opens a PR.
 - `.github/workflows/release-action-call.yml` — Orchestrates releases:
-  - On Release events: resolves solution name from tag/title with patterns `solution/<name>@<ver>`, `<name>-v<ver>`, or single token; prereleases → PREPROD, full releases → PROD.
+  - On Release events: resolves solution name from tag/title with patterns `solution/<name>@<ver>`, `<name>-v<ver>`, or single token; prereleases → QA, full releases → PROD.
   - Manual: uses dropdown `solution_name` directly.
   - Calls `.github/workflows/release-solution-to-prod-with-inputs.yml` (reusable workflow).
 - `.github/workflows/release-solution.yml` — Reusable: pack unmanaged → import to BUILD → export managed → upload artifact → download → import to target env.
 
 Secrets and environments (required names)
-- Common: `POWERPLATFORM_APPID`, `TENANTID`, `POWERPLATFORMSPN`.
-- Envs: `ENVIRONMENTURL_DEV` (export), `ENVIRONMENTURL_BUILD` (build/managed), `ENVIRONMENTURL_PREPROD` and `ENVIRONMENTURL_PROD` (targets). Release orchestrator passes these into the reusable workflow.
+- Common: `POWERPLATFORMAPPID`, `TENANTID`, `POWERPLATFORMAPPSECRET`.
+- Envs: `ENVIRONMENTURL_DEV` (export), `ENVIRONMENTURL_BUILD` (build/managed), `ENVIRONMENTURL_QA` and `ENVIRONMENTURL_PROD` (targets). Release orchestrator passes these into the reusable workflow.
 
 Authoring patterns to follow
 - Use step outputs for computed values (e.g., `steps.resolve.outputs.solution_name`) when referenced later in the job.

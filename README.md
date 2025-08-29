@@ -25,16 +25,33 @@ This repo keeps your solutions as source (unpacked) under `solutions/` and autom
 - `scripts/generate-manifest.sh` — Optional helper to output a lightweight `repo-manifest.json` (ignored by git) listing solution names + workflow files.
 - `LICENSE`
 
-## Required GitHub secrets
+## Required GitHub environments and secrets/variables
 
-Add these repository secrets (Settings → Secrets and variables → Actions → New repository secret):
+Configure these GitHub environments (Settings → Environments) with appropriate secrets and variables:
 
-- `ENVIRONMENTURL_DEV` — URL of the DEV Dataverse environment (e.g., `https://org12345.crm.dynamics.com`).
-- `POWERPLATFORM_APPID` — Azure AD app (service principal) Application (client) ID.
-- `POWERPLATFORMSPN` — Client secret for the service principal.
-- `TENANTID` — Azure AD tenant ID.
+**DEV Environment:**
+- Environment variable: `ENVIRONMENTURL_DEV` — URL of the DEV Dataverse environment (e.g., `https://org12345.crm.dynamics.com`)
+- Environment secret: `POWERPLATFORMAPPID` — Azure AD app (service principal) Application (client) ID
+- Environment secret: `POWERPLATFORMAPPSECRET` — Client secret for the service principal
+- Environment secret: `TENANTID` — Azure AD tenant ID
 
-Other environments (e.g., TEST/PROD) may require analogous secrets referenced by the release workflows.
+**QA Environment:**
+- Environment variable: `ENVIRONMENTURL_QA` — URL of the QA Dataverse environment
+- Environment secret: `POWERPLATFORMAPPID` — Azure AD app (service principal) Application (client) ID
+- Environment secret: `POWERPLATFORMAPPSECRET` — Client secret for the service principal
+- Environment secret: `TENANTID` — Azure AD tenant ID
+
+**PROD Environment:**
+- Environment variable: `ENVIRONMENTURL_PROD` — URL of the PROD Dataverse environment
+- Environment secret: `POWERPLATFORMAPPID` — Azure AD app (service principal) Application (client) ID
+- Environment secret: `POWERPLATFORMAPPSECRET` — Client secret for the service principal
+- Environment secret: `TENANTID` — Azure AD tenant ID
+
+**BUILD Environment Variables (shared across environments):**
+- Environment variable: `ENVIRONMENTURL_BUILD` — URL of the BUILD Dataverse environment for solution conversion
+
+**Repository secrets (not environment-specific):**
+- `WORKFLOW_UPDATE_TOKEN` — Personal access token for updating workflow files (classic PAT with repo + workflow scopes)
 
 ## Workflows
 
@@ -79,7 +96,7 @@ Triggers on changes to `solutions.json` or affected workflow files, and can be r
 
 Workflow: `.github/workflows/release-action-call.yml`
 
-Purpose: Orchestrates releases to PREPROD or PROD by calling the reusable workflow `release-solution.yml`.
+Purpose: Orchestrates releases to QA or PROD by calling the reusable workflow `release-solution.yml`.
 
 Triggers:
 
@@ -97,19 +114,19 @@ How the solution name is resolved:
 
 Environments and behavior:
 
-- If the GitHub Release is marked prerelease, it deploys to PREPROD (`ENVIRONMENTURL_PREPROD`).
+- If the GitHub Release is marked prerelease, it deploys to QA (`ENVIRONMENTURL_QA`).
 - If it’s a full release, it deploys to PROD (`ENVIRONMENTURL_PROD`).
 - Both paths use the build environment (`ENVIRONMENTURL_BUILD`) and call the reusable workflow with the resolved `solution_name`.
-- The manual path defaults to PREPROD (see the comment in the workflow) but can be changed in the YAML if desired.
+- The manual path defaults to QA (see the comment in the workflow) but can be changed in the YAML if desired.
 
-Required secrets for release:
+Required environment secrets/variables for release:
 
-- `POWERPLATFORMSPN` (as `envSecret`)
-- `ENVIRONMENTURL_BUILD`
-- `ENVIRONMENTURL_PREPROD` (for prereleases)
-- `ENVIRONMENTURL_PROD` (for full releases)
-- `POWERPLATFORM_APPID`
-- `TENANTID`
+- `POWERPLATFORMAPPSECRET` (as environment secret)
+- `ENVIRONMENTURL_BUILD` (as environment variable)
+- `ENVIRONMENTURL_QA` (as environment variable, for prereleases)
+- `ENVIRONMENTURL_PROD` (as environment variable, for full releases)
+- `POWERPLATFORMAPPID` (as environment secret)
+- `TENANTID` (as environment secret)
 
 Examples of acceptable release tags/titles:
 
