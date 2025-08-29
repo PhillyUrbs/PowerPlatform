@@ -19,6 +19,7 @@ on:
       - .github/workflows/delete-solution.yml
       - .github/workflows/release-action-call.yml
       - .github/workflows/release-solution.yml
+      - .github/workflows/release-solution-manual.yml
 permissions:
   contents: write
 
@@ -57,7 +58,8 @@ jobs:
               '.github/workflows/export-solution-from-dev.yml',
               '.github/workflows/release-action-call.yml',
               '.github/workflows/release-solution.yml',
-              '.github/workflows/delete-solution.yml'
+              '.github/workflows/delete-solution.yml',
+              '.github/workflows/release-solution-manual.yml'
             ];
 
             if (!fs.existsSync(jsonPath)) {
