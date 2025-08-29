@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
+#
+# Usage: scripts/build-manifest.sh
+# Purpose: Generate/update repo-manifest.json summarizing high-level repo metadata (solutions list, workflows) without expanding large solution contents.
+# Typical invocation contexts:
+#   - Manually (developer wants a quick manifest refresh)
+#   - Called from scripts/reindex.sh
+# Exit codes: 0 success; non-zero on fatal issues (e.g., missing solutions.json or parse failure)
+# Idempotent: Safe to run multiple times; will overwrite repo-manifest.json in place.
 shopt -s extglob || true  # needed for pattern trimming with *( )
 
 # build-manifest.sh

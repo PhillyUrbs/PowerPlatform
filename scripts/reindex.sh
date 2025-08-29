@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
+#
+# Usage: scripts/reindex.sh
+# Purpose: Regenerate lightweight developer indexes excluding heavy solution payloads.
+# Outputs (overwrites):
+#   .file-index         — tracked file list minus solutions/
+#   .tags               — ctags symbols (if ctags installed)
+#   repo-manifest.json  — via build-manifest.sh
+# Safe to run locally; may stage repo-manifest.json if changed.
+# Exit codes: 0 success; non-fatal steps (ctags or manifest errors) are downgraded with warnings.
 shopt -s extglob || true  # for pattern-based trimming used by build-manifest fallback
 
 # Regenerate lightweight indexes excluding the large/unnecessary solution file contents.
