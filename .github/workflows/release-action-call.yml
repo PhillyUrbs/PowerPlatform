@@ -3,8 +3,10 @@ name: Action Trigger - On Release
 # Release your solution to prod when you create a new release.
 
 on:
-  release:
-    types: [prereleased, released]
+  # Automatic release event trigger disabled to prevent auto publishing.
+  # Re-enable by uncommenting the following lines:
+  # release:
+  #   types: [prereleased, released]
   workflow_dispatch:
     inputs:
       solution_name:
@@ -49,80 +51,6 @@ jobs:
         run: |
           echo "You must select a real solution name, not <none>." >&2
           exit 1
-
-  check-pre-release:
-    if: github.event_name == 'release'
-    runs-on: ubuntu-latest
-    outputs:
-      is_prerelease: ${{ steps.get_release.outputs.is_prerelease }}
-      solution_name: ${{ steps.pick_solution.outputs.solution_name }}
-    steps:
-      - name: Get release information
-        id: get_release
-        run: |
-          echo "Event name: $GITHUB_EVENT_NAME"
-          echo "Raw prerelease value (release.prerelease):"
-          jq '.release.prerelease' "$GITHUB_EVENT_PATH" || true
-          PRERELEASE=$(jq -r '.release.prerelease // false' "$GITHUB_EVENT_PATH")
-          echo "Resolved prerelease=$PRERELEASE"
-          echo "is_prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
-      - name: Determine solution name from tag or title
-        id: pick_solution
-        shell: bash
-        run: |
-          # Strategy: look for patterns like "ALMLab-v1.2.3", "solution/ALMLab@1.2.3" or "ALMLab" in tag or release name
-          TAG=$(jq -r '.release.tag_name // ""' "$GITHUB_EVENT_PATH")
-          NAME=$(jq -r '.release.name // ""' "$GITHUB_EVENT_PATH")
-          echo "Release tag: '$TAG'"
-          echo "Release name: '$NAME'"
-          pick_from_text() {
-            txt="$1"
-            # Prefer formats like solution/<name>@<ver> or <name>-v<ver>
-            if [[ "$txt" =~ ^solution\/([^@\/]+)@.+$ ]]; then echo "${BASH_REMATCH[1]}"; return; fi
-            if [[ "$txt" =~ ^([^@\-\/]+)-v?[0-9].+$ ]]; then echo "${BASH_REMATCH[1]}"; return; fi
-            # Fallback: if it contains a single token without spaces, use it
-            if [[ "$txt" =~ ^([A-Za-z0-9_\-\.]+)$ ]]; then echo "${BASH_REMATCH[1]}"; return; fi
-            echo ""
-          }
-          SOL="$(pick_from_text "$TAG")"
-          if [ -z "$SOL" ] || [ "$SOL" = "" ]; then SOL="$(pick_from_text "$NAME")"; fi
-          if [ -z "$SOL" ] || [ "$SOL" = "" ]; then
-            echo "Could not resolve solution name from tag or title. Please include solution/<name>@<ver> or <name>-v<ver> in the release tag/title." >&2
-            exit 1
-          fi
-          echo "Resolved solution_name='$SOL'"
-          echo "solution_name=$SOL" >> "$GITHUB_OUTPUT"
-
-  deploy-preprod:
-    needs: check-pre-release
-    if: github.event_name == 'release' && needs.check-pre-release.outputs.is_prerelease == 'true'
-    uses: ./.github/workflows/release-solution.yml
-    with:
-      solution_name: ${{ needs.check-pre-release.outputs.solution_name }}
-      build_environment_name: philurban-M365x06004729
-      target_environment_name: philurban-M365x06004729 # only one environment currently configured
-    secrets:
-      envSecret: ${{ secrets.POWERPLATFORMAPPSECRET }}
-      BUILD_ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_BUILD }}
-      PRODUCTION_ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_QA }}
-      CLIENT_ID: ${{ secrets.POWERPLATFORMAPPID }}
-      TENANT_ID: ${{ secrets.TENANTID }}
-
-  deploy-prod:
-    needs: check-pre-release
-    if: github.event_name == 'release' && needs.check-pre-release.outputs.is_prerelease != 'true'
-    uses: ./.github/workflows/release-solution.yml
-    with:
-      solution_name: ${{ needs.check-pre-release.outputs.solution_name }}
-      build_environment_name: philurban-M365x06004729
-      target_environment_name: philurban-M365x06004729 # only one environment currently configured
-    secrets:
-      envSecret: ${{ secrets.POWERPLATFORMAPPSECRET }}
-      BUILD_ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_BUILD }}
-      # Replace ENVIRONMENTURL_PROD with the actual secret name for your production environment.
-      PRODUCTION_ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_PROD }}
-      CLIENT_ID: ${{ secrets.POWERPLATFORMAPPID }}
-      TENANT_ID: ${{ secrets.TENANTID }}
 
   manual-deploy:
     if: github.event_name == 'workflow_dispatch' && inputs.solution_name != '<none>'
