@@ -16,6 +16,25 @@ on:
           - ALMLab
           # GENERATED-OPTIONS-END
         # no default; must be specified for manual runs
+      target_stage:
+        description: 'Target stage to deploy to when running manually'
+        required: true
+        type: choice
+        options:
+          - QA
+          - PROD
+      environment_name_build:
+        description: 'GitHub environment containing BUILD env vars/secrets'
+        required: true
+        type: choice
+        options:
+          - philurban-M365x06004729
+      environment_name_target:
+        description: 'GitHub environment containing target env vars/secrets'
+        required: true
+        type: choice
+        options:
+          - philurban-M365x06004729
 
 permissions:
   contents: write
@@ -79,6 +98,8 @@ jobs:
     uses: ./.github/workflows/release-solution.yml
     with:
       solution_name: ${{ needs.check-pre-release.outputs.solution_name }}
+      build_environment_name: philurban-M365x06004729
+      target_environment_name: philurban-M365x06004729 # only one environment currently configured
     secrets:
       envSecret: ${{ secrets.POWERPLATFORMAPPSECRET }}
       BUILD_ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_BUILD }}
@@ -92,6 +113,8 @@ jobs:
     uses: ./.github/workflows/release-solution.yml
     with:
       solution_name: ${{ needs.check-pre-release.outputs.solution_name }}
+      build_environment_name: philurban-M365x06004729
+      target_environment_name: philurban-M365x06004729 # only one environment currently configured
     secrets:
       envSecret: ${{ secrets.POWERPLATFORMAPPSECRET }}
       BUILD_ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_BUILD }}
@@ -105,10 +128,12 @@ jobs:
     uses: ./.github/workflows/release-solution.yml
     with:
       solution_name: ${{ inputs.solution_name }}
+      build_environment_name: ${{ inputs.environment_name_build }}
+      target_environment_name: ${{ inputs.environment_name_target }}
     secrets:
       envSecret: ${{ secrets.POWERPLATFORMAPPSECRET }}
       BUILD_ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_BUILD }}
-      # Choose your target for manual runs. Default to QA; change to PROD if desired.
-      PRODUCTION_ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_QA }}
+      # Dynamically select target environment URL based on target_stage input
+      PRODUCTION_ENVIRONMENT_URL: ${{ inputs.target_stage == 'PROD' && vars.ENVIRONMENTURL_PROD || vars.ENVIRONMENTURL_QA }}
       CLIENT_ID: ${{ secrets.POWERPLATFORMAPPID }}
       TENANT_ID: ${{ secrets.TENANTID }}

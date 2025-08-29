@@ -18,6 +18,12 @@ on:
         description: 'Optional: enter a custom solution name (overrides the dropdown if set)'
         required: false
         type: string
+      environment_name:
+        description: 'GitHub environment containing secrets/vars for the source environment'
+        required: true
+        type: choice
+        options:
+          - philurban-M365x06004729
   # no default; must be specified at dispatch time
       # Do Not change these values
       solution_exported_folder:
@@ -45,7 +51,7 @@ permissions:
 jobs:
   export-from-dev:
     runs-on: windows-latest
-    environment: dev
+    environment: ${{ github.event.inputs.environment_name }}
     # or you can say runs-on: ubuntu-latest
     env:
       RUNNER_DEBUG: 1

@@ -15,6 +15,18 @@ on:
           # GENERATED-OPTIONS-START
           - ALMLab
           # GENERATED-OPTIONS-END
+      environment_name_build:
+        description: 'GitHub environment providing BUILD env secrets/vars'
+        required: true
+        type: choice
+        options:
+          - philurban-M365x06004729
+      environment_name_target:
+        description: 'GitHub environment providing TARGET (QA/Prod/etc) env secrets/vars'
+        required: true
+        type: choice
+        options:
+          - philurban-M365x06004729
   # no default; must be specified at dispatch time
       # Do Not change these values
       solution_shipping_folder:
@@ -47,7 +59,7 @@ permissions:
 jobs:
   convert-to-managed:
     runs-on: windows-latest
-    environment: dev
+    environment: ${{ github.event.inputs.environment_name_build }}
     # or you can use ubuntu-latest
     env:
       RUNNER_DEBUG: 1
@@ -105,7 +117,7 @@ jobs:
   release-to-environment:
     needs: [convert-to-managed]
     runs-on: windows-latest
-    environment: qa
+    environment: ${{ github.event.inputs.environment_name_target }}
     env:
       RUNNER_DEBUG: 1
 
