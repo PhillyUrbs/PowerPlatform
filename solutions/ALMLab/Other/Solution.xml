@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.2.25082.135" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.25082.135" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.25082.00141">
+<ImportExportXml version="9.2.25083.129" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.25083.129" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.25083.00141">
   <SolutionManifest>
     <UniqueName>ALMLab</UniqueName>
     <LocalizedNames>
@@ -92,7 +92,7 @@
       </MissingDependency>
       <MissingDependency>
         <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.15)" id.uniquename="AppChannel">
-          <package appName="PowerAppsAppFramework Package" version="1.0.0.21">PowerAppsAppFramework_Anchor (1.0.0.21)</package>
+          <package appName="PowerAppsAppFramework Package" version="1.0.0.22">PowerAppsAppFramework_Anchor (1.0.0.22)</package>
         </Required>
         <Dependent type="AppSetting" displayName="parentappmoduleid.uniquename=almlab_TimeOffRequests,settingdefinitionid.uniquename=AppChannel" id.parentappmoduleid.uniquename="almlab_TimeOffRequests" id.settingdefinitionid.uniquename="AppChannel" />
       </MissingDependency>
