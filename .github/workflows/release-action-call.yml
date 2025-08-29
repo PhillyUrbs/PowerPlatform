@@ -51,9 +51,8 @@ jobs:
     uses: ./.github/workflows/release-solution.yml
     with:
       solution_name: ${{ inputs.solution_name }}
-      # Using the SAME GitHub environment for both build and target; URLs decide actual platform targets.
-      build_environment_name: ${{ inputs.environment_name }}
-      target_environment_name: ${{ inputs.environment_name }}
+      # Single GitHub environment provides all required vars/secrets; URLs choose actual platform targets.
+      environment_name: ${{ inputs.environment_name }}
     secrets:
       envSecret: ${{ secrets.POWERPLATFORMAPPSECRET }}
       BUILD_ENVIRONMENT_URL: ${{ vars.ENVIRONMENTURL_BUILD }}
