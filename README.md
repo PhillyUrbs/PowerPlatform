@@ -25,32 +25,48 @@ This repo keeps your solutions as source (unpacked) under `solutions/` and autom
 - `scripts/generate-manifest.sh` — Optional helper to output a lightweight `repo-manifest.json` (ignored by git) listing solution names + workflow files.
 - `LICENSE`
 
+## Onboarding a new environment
+
+Follow the detailed guide in `docs/ENVIRONMENT-ONBOARDING.md` to:
+
+- Create / reuse the Azure AD app registration (service principal)
+- Assign roles in each Dataverse environment
+- Configure required GitHub environment variables & secrets
+- Add an extra stage (optional) and extend workflows
+
+Quick reference of required names (details in the guide): `POWERPLATFORMAPPID`, `POWERPLATFORMAPPSECRET`, `TENANTID`, `ENVIRONMENTURL_DEV`, `ENVIRONMENTURL_BUILD`, `ENVIRONMENTURL_QA`, `ENVIRONMENTURL_PROD`.
+
 ## Required GitHub environments and secrets/variables
 
 Configure these GitHub environments (Settings → Environments) with appropriate secrets and variables:
 
 **DEV Environment:**
+
 - Environment variable: `ENVIRONMENTURL_DEV` — URL of the DEV Dataverse environment (e.g., `https://org12345.crm.dynamics.com`)
 - Environment secret: `POWERPLATFORMAPPID` — Azure AD app (service principal) Application (client) ID
 - Environment secret: `POWERPLATFORMAPPSECRET` — Client secret for the service principal
 - Environment secret: `TENANTID` — Azure AD tenant ID
 
 **QA Environment:**
+
 - Environment variable: `ENVIRONMENTURL_QA` — URL of the QA Dataverse environment
 - Environment secret: `POWERPLATFORMAPPID` — Azure AD app (service principal) Application (client) ID
 - Environment secret: `POWERPLATFORMAPPSECRET` — Client secret for the service principal
 - Environment secret: `TENANTID` — Azure AD tenant ID
 
 **PROD Environment:**
+
 - Environment variable: `ENVIRONMENTURL_PROD` — URL of the PROD Dataverse environment
 - Environment secret: `POWERPLATFORMAPPID` — Azure AD app (service principal) Application (client) ID
 - Environment secret: `POWERPLATFORMAPPSECRET` — Client secret for the service principal
 - Environment secret: `TENANTID` — Azure AD tenant ID
 
 **BUILD Environment Variables (shared across environments):**
+
 - Environment variable: `ENVIRONMENTURL_BUILD` — URL of the BUILD Dataverse environment for solution conversion
 
 **Repository secrets (not environment-specific):**
+
 - `WORKFLOW_UPDATE_TOKEN` — Personal access token for updating workflow files (classic PAT with repo + workflow scopes)
 
 ## Workflows
