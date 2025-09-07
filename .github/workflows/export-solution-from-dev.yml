@@ -157,7 +157,7 @@ jobs:
 
       - name: Ensure solutions.json includes exported solution
         id: ensure_json
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
