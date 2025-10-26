@@ -146,7 +146,7 @@ jobs:
           fi
 
       - name: Fetch the ready to ship solution from GH artifact store
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: managedSolutions
           path: ${{ github.event.inputs.solution_release_folder}}
