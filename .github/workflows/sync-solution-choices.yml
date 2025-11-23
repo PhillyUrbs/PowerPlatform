@@ -41,7 +41,7 @@ jobs:
             echo "token=${GITHUB_TOKEN}" >> "$GITHUB_OUTPUT"
           fi
       - name: Checkout (uses PAT if provided)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           # Provide PAT secret WORKFLOW_UPDATE_TOKEN (scopes: repo, workflow) to enable
           # committing changes to workflow files. Without it, default token may be rejected.
