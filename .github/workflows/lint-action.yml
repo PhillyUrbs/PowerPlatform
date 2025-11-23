@@ -24,7 +24,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: actionlint (latest)
         # Download & run the latest released actionlint (un-pinned to pick up new rules automatically).
         run: |
