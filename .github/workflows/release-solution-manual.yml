@@ -111,7 +111,7 @@ jobs:
           solution-output-file: ${{ github.event.inputs.solution_shipping_folder}}/${{ github.event.inputs.solution_name }}.zip
 
       - name: Upload the ready to ship solution to GH artifact store
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: managedSolutions
           path: ${{ github.event.inputs.solution_shipping_folder}}/${{ github.event.inputs.solution_name }}.zip
