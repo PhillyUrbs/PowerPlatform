@@ -113,7 +113,7 @@ jobs:
           managed: true
           solution-output-file: ${{ inputs.solution_shipping_folder }}${{ inputs.solution_name }}_managed.zip
       - name: Upload the ready to ship solution to GH artifact store
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: managedSolutions
           path: ${{ inputs.solution_shipping_folder }}
